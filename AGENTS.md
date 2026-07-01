@@ -55,66 +55,12 @@ design-flow/
 - Skill 主体是纯 Markdown，LLM 驱动。`scripts/analyze.py` 为 Workflow 5 提供确定性统计（python3 标准库，无外部依赖），是路线图"workflow 真需要确定性计算时引入 scripts"逃生条款的首次落地。
 - 确定性计算（如统计）若需引入，遵循"使用 3 次以上才提取为 `scripts/`"原则。
 
-## Git 协作流程
+## Git 约定
 
-### 分支策略
-
-- **`main`** — 主分支，始终保持可发布状态。禁止直接向 `main` 推送，所有改动通过 PR 合入。
-- **功能分支** — `feat/<简短描述>`，例：`feat/add-export-csv`。从 `main` 拉出，合回 `main`。
-- **修复分支** — `fix/<简短描述>`，例：`fix/survey-routing`。从 `main` 拉出，合回 `main`。
-- **文档分支** — `docs/<简短描述>`，例：`docs/update-readme`。纯文档改动，从 `main` 拉出，合回 `main`。
-
-### 开发流程
-
-```bash
-# 1. 从最新的 main 开始
-git checkout main
-git pull origin main
-
-# 2. 创建功能分支
-git checkout -b feat/my-feature
-
-# 3. 开发 + 频繁提交（小步提交，便于回退）
-git add <files>
-git commit -m "<verb>: <description>"
-
-# 4. 推送分支到远端
-git push -u origin feat/my-feature
-
-# 5. 在 GitHub 发起 PR，描述做了什么、为什么、怎么测
-
-# 6. 合并后清理本地分支
-git checkout main
-git pull origin main
-git branch -d feat/my-feature
-```
-
-### 提交信息规范
-
-格式：`<verb>: <description>`
-
-| 动词 | 用途 |
-|------|------|
-| `add` | 新增文件或功能 |
-| `fix` | 修复 bug |
-| `docs` | 纯文档改动 |
-| `refine` | 改进现有实现（非 bug 修复） |
-| `chore` | 维护性杂务（依赖更新、格式调整等） |
-| `remove` | 删除文件或功能 |
-
-例：`add: 仓库骨架`、`fix: survey workflow 路由`、`docs: prd 和 rfc`、`refine: 优化 audience inference prompt`
-
-### PR 规范
-
-- **标题**：使用与提交信息相同的 verb 格式
-- **描述**：包含三要素——做了什么 / 为什么 / 怎么测
-- **至少一个 Review**：合并前需另一人（或 Agent）过目
-- **CI 通过后合并**：若项目配置了 lint / test，须全部通过
-
-### 禁止提交
-
-- `.env`、`runs/`、`reference-docs/`、`构建路线图.md` 或任何含真实凭据的文件
-- `node_modules/`、`__pycache__/`、`.DS_Store`（后两者已在 `.gitignore`）
+- 分支：`main`，直接推，两个人不需要 PR 流程
+- 提交信息：`<verb>: <description>`。动词用 `add` / `fix` / `docs` / `refine` / `chore` / `remove`
+- 推送前 `git pull --rebase` 避免冲突
+- 永不提交 `.env`、`runs/`、`reference-docs/`、`构建路线图.md` 或任何含真实凭据的文件
 
 ## 发布前隐私扫描
 
