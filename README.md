@@ -26,7 +26,7 @@
 给 AI agent 一句研究问题，用编排命令跑全链：
 
 ```
-/design-flow:run-pipeline 年轻用户对音乐 App 播放界面的使用习惯与痛点调研
+/design-flow:run-pipeline 年轻租房群体对模块化家具的需求与购买决策调研
 ```
 
 步间会暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
