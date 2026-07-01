@@ -52,7 +52,7 @@ design-flow/
 
 ## 环境
 
-- 暂无 Python / Node 依赖。Skill 本身是纯 Markdown，LLM 驱动。
+- Skill 主体是纯 Markdown，LLM 驱动。`scripts/analyze.py` 为 Workflow 5 提供确定性统计（python3 标准库，无外部依赖），是路线图"workflow 真需要确定性计算时引入 scripts"逃生条款的首次落地。
 - 确定性计算（如统计）若需引入，遵循"使用 3 次以上才提取为 `scripts/`"原则。
 
 ## Git 约定
@@ -63,4 +63,8 @@ design-flow/
 
 ## 发布前隐私扫描
 
-扫描 1Password 引用、API key 风格串、绝对用户路径；任何匹配都是红线。（具体命令见 `docs/test.md`，TODO-7 补。）
+```bash
+rg -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .
+```
+
+扫描 1Password 引用（`op://`）、API key 风格串（`sk-` + 10+ 字符）、绝对用户路径（`/Users/`）。任何匹配都是红线。本命令会在 `AGENTS.md` 与 `docs/test.md` 自匹配（命令本身含 `op://` 与 `/Users/`），忽略这两处。`rg` 默认跳过 gitignore 文件，故 `reference-docs/`、`构建路线图.md`、`runs/` 不扫。本 skill 无 env 变量，故无 `.env.example`；示例 persona / 数据集必须虚构合成。
