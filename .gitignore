@@ -1,1 +1,33 @@
+# Build-time research material (not part of the shipped skill)
+/reference-docs/
+/构建路线图.md
+
+# Runtime output: generated surveys / personas / responses / reports
+/runs/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python (reserved for future deterministic scripts)
+__pycache__/
+.pytest_cache/
+*.pyc
+*.egg-info/
+.venv/
+dist/
+build/
+
+# macOS
 .DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/

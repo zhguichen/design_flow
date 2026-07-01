@@ -1,0 +1,66 @@
+# AGENTS.md — design-flow
+
+维护仓库的 Agent 首读文件。任何 Agent 进入此仓库先读这里。
+
+## 项目定位
+
+`design-flow` 是面向设计类学生 / 从业者的 Claude Code Skill，解决"找不到可信、足量、结构合理的目标受访者样本"这个痛点。它覆盖完整链路：设计问卷 → 反推人群 → 生成 persona → LLM 模拟填写 → 收集结果 → 分析。
+
+**边界：预调研工具，不替代真实用户研究。** 它替代的是低质量、随便发、没人认真填的学生式问卷调研，而不是专业研究中的真实样本采集。
+
+形态：单一根 Skill（`SKILL.md`，harness 只发现这一个入口）+ 按需加载的 5 个 workflow 子文件 + 编排命令 + 参考资料夹。这是"root + sub-skills"模式，不是多个独立注册 skill。
+
+## 目录结构
+
+```
+design-flow/
+├── README.md              ← 给安装者看
+├── AGENTS.md              ← 本文件：给维护 Agent 看
+├── SKILL.md               ← 根 skill：给使用 Agent 看的操作合同（主产出）
+├── workflows/             ← 按需加载的 5 个子文件
+│   ├── 01-survey-design.md
+│   ├── 02-audience-inference.md
+│   ├── 03-persona-generation.md
+│   ├── 04-response-simulation.md
+│   └── 05-result-analysis.md
+├── commands/
+│   └── run-pipeline.md    ← 串联 1→5 的编排命令
+├── references/            ← 方法论沉淀，按需引用
+├── scripts/               ← 仅放必须确定性执行的部分（机会性，按需创建）
+├── docs/
+│   ├── prd.md             ← 产品需求
+│   ├── rfc.md             ← 架构决策与权衡
+│   ├── working.md         ← 变更日志 + 经验教训（持续追加）
+│   └── test.md            ← 验收标准清单
+└── runs/                  ← 运行时产出（问卷/persona/答案/报告），gitignore
+```
+
+## 关键约束（红线）
+
+1. **公开仓库只用假值。** 不含真实邮箱、API key、内部路径、1Password 引用、真实联系人。示例 persona / 数据集必须是虚构合成样本。
+2. **根 skill 是主产出。** 其余文件都为解释、论证、维护 skill 而存在。`SKILL.md` 保持精简（~200 行），专项内容下沉到 workflows / references。
+3. **`docs/working.md` 追加纪律。** 每次有意义的改动后，在 `# Changelog` 下追加一条带日期的记录 + 经验教训。这是为了让未来的自己 / Agent 能回溯决策上下文。
+
+## 跨阶段红线（所有 workflow 继承）
+
+任何输出（人群画像 / 模拟数据集 / 分析报告）都必须标注：**合成样本 / 样本量 / 置信度 / 仅供预调研**。
+
+## 语言
+
+- 内容中文优先（目标用户是中文设计学生）。
+- 文件名、字段名、代码标识符用英文。
+
+## 环境
+
+- 暂无 Python / Node 依赖。Skill 本身是纯 Markdown，LLM 驱动。
+- 确定性计算（如统计）若需引入，遵循"使用 3 次以上才提取为 `scripts/`"原则。
+
+## Git 约定
+
+- 分支：`main`
+- 提交信息：`<verb>: <description>`。例：`add: 仓库骨架`、`docs: prd 和 rfc`、`refine: survey workflow 路由`
+- 永不提交 `.env`、`runs/`、`reference-docs/`、`构建路线图.md` 或任何含真实凭据的文件。
+
+## 发布前隐私扫描
+
+扫描 1Password 引用、API key 风格串、绝对用户路径；任何匹配都是红线。（具体命令见 `docs/test.md`，TODO-7 补。）
