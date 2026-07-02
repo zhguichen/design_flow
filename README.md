@@ -1,12 +1,12 @@
 # design-flow
 
-面向设计类学生 / 从业者的 Claude Code Skill：用 AI 合成样本帮助问卷预调研，覆盖"设计问卷 → 反推人群 → 生成 persona → LLM 模拟填写 → 收集结果 → 分析"全链路。
+面向设计类学生 / 从业者的 Claude Code Skill：用 AI 合成样本帮助问卷预调研，覆盖"设计问卷 → 反推人群 → 行为机制映射 → 任务摩擦映射 → 生成 persona → LLM 模拟填写 → 收集结果 → 分析"全链路。
 
 **边界：预调研工具，不替代真实用户研究。** 替代的是低质量、随便发、没人认真填的学生式问卷调研。
 
 ## 它解决什么
 
-设计学生做问卷调研时：找不到足够目标用户、找到的不是目标用户、填写者敷衍乱填。本 skill 生成一批认真、符合目标人群、按自身处境作答的合成受访者，比随便找同学互填更有逻辑、更稳定、更接近目标人群。
+设计学生做问卷调研时：找不到足够目标用户、找到的不是目标用户、填写者敷衍乱填。本 skill 生成一批认真、符合目标人群、按自身处境作答的合成受访者，并用行为机制和任务摩擦说明这些模拟人为什么合理存在、为什么会觉得某些环节更麻烦，比随便找同学互填更有逻辑、更稳定、更接近目标人群。
 
 ## 它不做什么
 
@@ -31,13 +31,13 @@
 
 步间会暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
 
-产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `respondents.jsonl` → `responses.jsonl` → `stats.json` + `report.md`。
+产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` → `respondents.jsonl` → `responses.jsonl` → `stats.json` + `report.md`。
 
 ## 结构
 
 - `SKILL.md` — 根 skill（唯一入口，路由到 workflows）
-- `workflows/01..05-*.md` — 问卷设计 / 人群反推 / persona 生成 / 模拟作答 / 结果分析
-- `commands/run-pipeline.md` — 串联 1→5 的编排命令
+- `workflows/*.md` — 问卷设计 / 人群反推 / 行为机制映射 / 任务摩擦映射 / persona 生成 / 模拟作答 / 结果分析
+- `commands/run-pipeline.md` — 串联 1→2→2.5→2.6→3→4→5 的编排命令
 - `scripts/analyze.py` — WF5 确定性统计
 - `docs/{prd,rfc,working,test}.md` — 需求 / 架构 / 变更日志 / 测试
 - `AGENTS.md` — 给维护 Agent 看

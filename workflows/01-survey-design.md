@@ -57,6 +57,17 @@
 
 ## 方法
 
+### Anthropic user-research 作为方法顾问（可选）
+
+如果本机已安装 Anthropic `user-research` skill，可先用它做一次研究方法适配检查：
+
+- 研究目的是否适合问卷，而不是访谈 / 可用性测试 / 日记研究
+- 目标人群与样本要求是否清楚
+- 问卷是否只量化已知构念，而不是试图发现未知问题
+- 是否需要在问卷外补一小轮访谈或可用性测试来验证关键假设
+
+但 `user-research` 只作为方法顾问，不能替代本 workflow 的输出契约。最终必须写出本 skill 的 `survey.json`，每题必须有 `construct_measured`，否则 WF2 无法反推人群。
+
 ### 题序（固定顺序，不乱排）
 
 1. **筛选 / 人口统计**：短，开头。筛掉非目标人群。
@@ -125,6 +136,7 @@
 - [ ] 题序符合 筛选→行为→态度→开放（开放题不在前）。
 - [ ] 题数 ≤ 15，`estimated_minutes` ≤ 5。
 - [ ] 逐题过避免偏差自检（无引导 / 双重 / 加载 / 回忆过载 / 术语）。
+- [ ] 如参考 Anthropic `user-research`，最终仍保留本 schema 与 `construct_measured`，不输出散文化研究计划替代问卷。
 
 ## Stop 条件
 
@@ -141,7 +153,7 @@
 
 ## 下一步
 
-问卷就绪后进入 `workflows/02-audience-inference.md`：读 `survey.json` 的 `construct_measured`，反推影响回答的关键变量，划 5-8 类人群原型 + 比例。
+问卷就绪后进入 `workflows/02-audience-inference.md`：读 `survey.json` 的 `construct_measured`，反推影响回答的关键变量，划 5-8 类待机制校验的人群原型 + 比例。
 
 ## 示例
 
