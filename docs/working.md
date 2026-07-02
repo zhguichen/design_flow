@@ -4,6 +4,30 @@
 
 ## Changelog
 
+### 2026-07-02 — 增加队友修改说明文档
+
+- 新增 `docs/change-summary.md`：用非工程读者也能理解的方式说明本轮为什么加入 WF2.5 行为机制映射和 WF2.6 任务摩擦映射、改了哪些文件、解决了哪些可信度问题、队友应该按什么顺序 review。
+- 更新 `README.md`：在使用说明后加入 `docs/change-summary.md` 入口，避免队友只看到一堆 workflow 文件，不知道先读哪里。
+
+### 2026-07-02 — 新增 WF2.6 任务摩擦映射
+
+- 新增 `references/task-friction-framework.md`：明确痛点/麻烦环节不能从性格直接推导，必须走“任务场景 → 当前行为 → 环境限制 → 资源/能力 → 行为机制 → 摩擦维度 → 可能痛点答案”链路。
+- 新增 `workflows/026-task-friction-mapping.md`：在 WF2.5 和 WF3 之间输出 `task_frictions.json`，为痛点题、排序题、功能优先级题、使用边界题、开放题提供摩擦维度、分数、drivers 和作答规则。
+- 更新 `SKILL.md` 与 `commands/run-pipeline.md`：全链从 1→2→2.5→3→4→5 改为 1→2→2.5→2.6→3→4→5。
+- 更新 WF3：每个 respondent 必须带 `task_friction_profile`，不能只带 persona 五层和 `mechanism_trace`。
+- 更新 WF4：痛点/排序/功能优先级/开放题必须追溯到 `task_friction_profile`，不能从“谨慎/开放”等性格标签直接作答。
+- 更新 WF5、README、PRD、RFC、test、AGENTS：报告和验收标准加入“机制与任务摩擦解释”。
+
+### 2026-07-02 — 接入 user-research + 新增行为机制映射层
+
+- 安装 Anthropic `user-research` skill 到本机 Codex skills；定位为 WF1 的研究方法顾问，用于检查问卷是否适合该研究目的、目标人群与方法是否匹配，但不替代本 skill 的 `survey.json` 契约。
+- 新增 `references/behavior-mechanism-library.md`：按问卷领域路由技术接受、产品购买、空间体验、视觉审美、服务参与、公共设计、生活方式、潜在需求、问卷作答心理等机制；核心链路为“环境/事件 → 处境/限制 → 行为机制 → 表层需求/潜在动机 → 作答影响”。
+- 新增 `workflows/025-behavior-mechanism-mapping.md`：WF2 的原型先经过机制校验，输出 `behavior_mechanisms.json`；没有机制支撑、不会影响回答、现实不自洽的类型不能进入 WF3。
+- 更新 WF1：可参考 Anthropic `user-research` 做方法适配，但最终仍必须输出带 `construct_measured` 的 `survey.json`。
+- 更新 WF2：原型改为“待机制校验”，新增 `候选机制线索`，下一步改为 WF2.5。
+- 更新 WF3/WF4/WF5：persona 必须带 `mechanism_trace`；关键作答要能追溯机制；报告新增“机制解释”，显式区分模拟数据模式、机制推导解释与需真人验证的假设。
+- 更新 `SKILL.md`、`commands/run-pipeline.md`、README、PRD、RFC、test、AGENTS：全链从 5 步改为 1→2→2.5→3→4→5。
+
 ### 2026-07-01 — 初始化仓库骨架（TODO-0）
 
 - 落地目录结构：README / AGENTS / SKILL 根 + 5 个 workflow 占位 + commands / references（.gitkeep）+ docs 四件套。
