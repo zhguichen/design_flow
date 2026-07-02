@@ -33,6 +33,8 @@
 
 产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` → `respondents.jsonl` → `responses.jsonl` → `stats.json` + `report.md`。
 
+如果是给队友看本轮修改，先读 `docs/change-summary.md`。
+
 ## 结构
 
 - `SKILL.md` — 根 skill（唯一入口，路由到 workflows）
