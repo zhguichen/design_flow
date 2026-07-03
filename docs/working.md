@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### 2026-07-03 — WF1 只保留 pre-research
+
+- 删除 `hypothesis-validation` 用途选项，`survey.purpose` 固定为 `pre-research`；合成场景只能做方向判断、问卷预检和预测预演。
+- `validate_run.py` 增加强约束，任何其他 `purpose` 值均校验失败；发布 QA 增加对应反例。
+- plugin 版本递增为 `0.1.3`。
+- 经验教训：没有独立执行分支、又超出产品证据边界的枚举值只会制造虚假的能力暗示，应从合同与校验器中一起删除。
+
 ### 2026-07-03 — 显示 WF4 subagent 隔离说明
 
 - 门 3 和 WF4 启动前明确向用户显示为什么需要隔离 subagent、允许传入哪些信息，以及该说明不会新增确认门。

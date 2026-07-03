@@ -125,6 +125,8 @@ class Validator:
             ),
             "survey.json",
         )
+        if survey.get("purpose") != "pre-research":
+            self.error("survey.purpose must be 'pre-research'")
         questions = survey.get("questions", [])
         if not isinstance(questions, list) or not questions:
             self.error("survey.questions must be a non-empty list")

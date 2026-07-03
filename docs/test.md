@@ -66,6 +66,7 @@ python3 -m json.tool runs/test/stats.json
 | 22 | pilot n 小于 archetype 数，或报告未标有限覆盖 | 拦下；重新选择 n，并在报告声明“分层预演 / 不代表完整场景覆盖” |
 | 23 | JSON 字符串中的自然语言短语需要加引号 | 使用 `「」`，写入后通过 JSON 解析；不得直接嵌入未转义的 ASCII 双引号 |
 | 24 | 门 3 进入 WF4，但未显示 subagent 隔离说明或静默降级 | 拦下；显示隔离目的与实际模式，支持时必须用 subagent，不支持时显示原因并标 `procedural` |
+| 25 | WF1 把 `purpose` 写成 `hypothesis-validation` 或其他值 | 校验失败；本工具只允许 `pre-research`，真实假设验证必须使用真实样本 |
 
 ### 回归检查（发布前）
 
