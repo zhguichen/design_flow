@@ -1,6 +1,6 @@
 ---
 name: design-flow
-description: 面向设计类学生/从业者的问卷预调研 Skill——设计问卷、反推人群、用人文社科/心理学行为机制和任务摩擦模型推导合理场景、生成 persona、LLM 模拟填写、分析结果，产出覆盖充分的合成场景用于替代低质量互填。
+description: 面向设计类学生/从业者的问卷预调研 Skill——支持用户自带问卷或由 Agent 追问设计背景后生成问卷，再反推人群、用人文社科/心理学行为机制和任务摩擦模型推导合理场景、生成 persona、LLM 模拟填写、分析结果，产出覆盖充分的合成场景用于替代低质量互填。
 ---
 
 # design-flow
@@ -41,13 +41,25 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 
 每步产出物落 `runs/<时间戳>/`。全链只在问卷、audience package + 模拟规模、persona 抽查 + 模拟模式三处暂停确认（见 Commands）。
 
+## 开始方式
+
+先判断用户从哪里开始，避免默认替用户写问卷：
+
+| 开始方式 | 触发 | 处理 |
+|---|---|---|
+| A. 用户已有问卷 | 用户粘贴问卷、上传表格/截图/文档、或说“我已有问卷” | 进入 WF1 的“已有问卷规范化”：尽量保留原题意，检查题序、偏差、题型、选项和量表，为每题补 `construct_measured`，转成 `survey.json` 后走门 1 |
+| B. 用户没有问卷 | 用户只有设计题目、方案、研究问题或说“帮我生成问卷” | WF1 先追问设计对象、目标人群、使用场景、方案/功能和最想验证的不确定点；信息足够后再生成问卷 |
+| C. 已有 `survey.json` 或 run | 用户提供已有 `survey.json`、run 目录，或要求继续 WF2/WF3/WF4/WF5 | 验证现有文件结构，缺什么补什么；不要重新生成问卷 |
+
+Agent 生成问卷时不能直接堆“是否愿意使用/购买/推荐”题。必须先围绕用户的设计目标建立行为、情境、痛点、功能优先级、信任/价格/边界等构念，再把结果变量放到后段测量。
+
 ## Related workflows（路由）
 
 5 个 workflow 文件按需加载，不全局暴露；WF2 内含 A/B/C 三个 Phase，因此全链共有 7 个执行阶段。按触发条件 load：
 
 | 触发 | 加载 | 产出 |
 |---|---|---|
-| 用户给研究问题 / 目标人群，需设计问卷；或 `survey.json` 不存在 | `workflows/01-survey-design.md` | `survey.json` |
+| 用户给研究问题 / 目标人群，需设计问卷；用户提供草稿问卷需规范化；或 `survey.json` 不存在 | `workflows/01-survey-design.md` | `survey.json` |
 | `survey.json` 就绪，需反推人群、匹配机制、映射任务摩擦 | `workflows/02-audience-analysis.md` | `archetypes.json` + `behavior_mechanisms.json` + `task_frictions.json` |
 | 以上四文件就绪，需展开并选择具体受访者 | `workflows/03-persona-generation.md` | `respondents.jsonl` + meta + `selection.json` |
 | `respondents.jsonl` 就绪，需模拟作答 | `workflows/04-response-simulation.md` | `responses.jsonl` + meta |

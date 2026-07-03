@@ -47,17 +47,29 @@ claude
 
 ## 使用
 
-给 AI agent 一句研究问题，用编排命令跑全链：
+开头有三种方式：
+
+| 方式 | 你给什么 | Skill 做什么 |
+|---|---|---|
+| 我已有问卷 | 直接粘贴题目，或给表格/截图/文档 | 保留原题意，检查偏差、题型、选项、题序，补 `construct_measured`，转成 `survey.json` |
+| 我没有问卷 | 给设计对象、目标人群、方案想法或研究问题 | Agent 先追问设计目的和关键不确定点，再生成问卷 |
+| 我已有 `survey.json` / run | 给已有文件或说继续 WF2/WF3/WF4/WF5 | 校验现有产物，直接从对应阶段继续 |
+
+没有问卷时，可以给 AI agent 一句研究问题，用编排命令跑全链：
 
 ```
 /design-flow:run-pipeline 年轻租房群体对模块化家具的需求与购买决策调研
 ```
 
-全链只在问卷、audience package + 模拟规模、persona 抽查 + 模拟模式三处暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
+如果你已经有问卷，可以直接说：
+
+```
+我已有问卷，帮我整理成可用于合成样本预调研的 survey.json，然后继续跑后续流程
+```
+
+全链只在问卷、audience package + 模拟规模、persona 抽查 + 模拟模式三处暂停确认。也可只跑某一步（如只设计问卷、只规范化已有问卷、从 WF2 继续），agent 直接 load 对应 `workflows/0X-*.md`。
 
 产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` → `respondents.jsonl` → `selection.json` → `responses.jsonl` → `stats.json` + `report.md`。门 3 可选择全部模拟，或只指定 n 做确定性分层预演；用户不手工挑 persona。上游不生成逐题预测或答案规则，WF4 只根据 persona 故事独立作答。
-
-如果是给队友看本轮修改，先读 `docs/change-summary.md`。
 
 ## 结构
 
