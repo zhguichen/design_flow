@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### 2026-07-03 — 统一 JSON 内部引用符号
+
+- JSON / JSONL 的自然语言字符串如需引用短语，统一使用 `「」`，避免模型生成未转义的 ASCII 双引号导致解析失败。
+- 根 Skill 增加全流程规则，格式示例和发布 QA 增加对应正例；plugin 版本递增为 `0.1.1`。
+- 经验教训：即使下游校验器能发现无效 JSON，也应在生成约定上消除高频转义风险；自然语言引用不需要占用 JSON 的结构引号。
+
 ### 2026-07-03 — 包装 Claude Code plugin 与 marketplace
 
 - 新增仓库级 `.claude-plugin/marketplace.json`、plugin 级 `design_flow/.claude-plugin/plugin.json` 和 MIT `LICENSE`，首个发布版本定为 `0.1.0`。

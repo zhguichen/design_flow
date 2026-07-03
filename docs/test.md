@@ -64,6 +64,7 @@ python3 -m json.tool runs/test/stats.json
 | 20 | WF2 Phase A 单独询问 `simulation_n`，或 Phase C 后未确认最终值就进入 WF3 | 拦下；只在完整 audience package 门禁确认一次 |
 | 21 | 用户在门 3 手工挑选具体 persona | 拦下；用户只选择 `full` 或指定 pilot n，具体 id 由脚本按 archetype 分层选择 |
 | 22 | pilot n 小于 archetype 数，或报告未标有限覆盖 | 拦下；重新选择 n，并在报告声明“分层预演 / 不代表完整场景覆盖” |
+| 23 | JSON 字符串中的自然语言短语需要加引号 | 使用 `「」`，写入后通过 JSON 解析；不得直接嵌入未转义的 ASCII 双引号 |
 
 ### 回归检查（发布前）
 
