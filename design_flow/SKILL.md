@@ -84,7 +84,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 - `behavior_mechanisms.json` 覆盖每个 archetype，并标注证据等级、合理性、表层需求、假设性潜在动机、替代解释和证伪条件；仅模型推断时不得标为 `supported`。
 - `task_frictions.json` 覆盖每个 archetype 和所有痛点/排序/开放/使用边界题，并标注可观察 drivers、机制追溯和置信度；不生成分数到答案的查表规则。
 - `hypotheses.json` 在模拟前标记 `status=sealed`；respondents / responses 不含预测方向或 hypothesis 内容。
-- WF4 优先在隔离 context 中运行；无法隔离时 `responses_meta.blinding.level=procedural` 且置信度降级。
+- 进入 WF4 前向用户显示 subagent 隔离说明与实际执行模式。环境支持 subagent 时必须为入选 persona 开启隔离 context；无法创建时明确显示降级原因，设置 `responses_meta.blinding.level=procedural` 并降低置信度。
 - `selection.json` 记录 `full` 或确定性 `stratified-pilot`；用户只决定 n，不手工挑 persona。pilot 覆盖所有 archetype，并明确不代表完整场景覆盖。
 - `respondents.jsonl` / `responses.jsonl` 每行含可追溯 id（`respondent_id` → `archetype_id` → `question_id` 链完整）。
 - 分析报告区分"模拟数据显示的模式"、"机制推导出的解释"、"需真实用户验证的假设"。

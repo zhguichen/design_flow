@@ -159,6 +159,8 @@
 - `full`：全部 persona 进入 WF4，作为完整场景模拟。
 - `stratified-pilot`：用户只指定预演数量 n，具体 persona 由脚本按 archetype 确定性分层抽取。n 不得小于 archetype 数，不能让用户手工挑 respondent id。
 
+在同一展示中明确说明：“WF4 需要开启隔离 subagent，让作答模型只看到 persona、问卷与允许的机制信息，避免接触封存预测；这不会增加新的确认门。”同时显示实际可用模式：支持 subagent 时显示 `isolated`；不支持时显示降级为 `procedural` 及其置信度影响，不能静默降级。
+
 运行：
 
 ```bash

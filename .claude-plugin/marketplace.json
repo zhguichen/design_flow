@@ -10,7 +10,7 @@
       "name": "design-flow",
       "source": "./design_flow",
       "description": "用合成场景完成问卷设计、人群反推、persona 模拟填写与预调研分析。",
-      "version": "0.1.1"
+      "version": "0.1.2"
     }
   ]
 }
