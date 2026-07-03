@@ -76,7 +76,7 @@
 先运行：
 
 ```bash
-python3 scripts/validate_run.py runs/<时间戳>/ --stage wf2a
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf2a
 ```
 
 再判断权重语义是否诚实、原型是否自洽、是否真的会影响回答。通过后自动进入 Phase B。
@@ -133,7 +133,7 @@ python3 scripts/validate_run.py runs/<时间戳>/ --stage wf2a
 先运行：
 
 ```bash
-python3 scripts/validate_run.py runs/<时间戳>/ --stage wf2b
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf2b
 ```
 
 再判断 domain 路由、因果链、竞争解释与证伪条件是否合理。通过后自动进入 Phase C。
@@ -187,7 +187,7 @@ python3 scripts/validate_run.py runs/<时间戳>/ --stage wf2b
 先运行：
 
 ```bash
-python3 scripts/validate_run.py runs/<时间戳>/ --stage wf2c
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf2c
 ```
 
 再判断 drivers 是否可观察、情境覆盖是否充分、预测是否可证伪。

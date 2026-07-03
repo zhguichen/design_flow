@@ -139,7 +139,7 @@
 
 ## 完成前确认
 
-先运行 `python3 scripts/validate_run.py runs/<时间戳>/ --stage wf3` 做 JSONL、id、配额、禁止字段和跨文件追溯校验，再判断：
+先运行 `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf3` 做 JSONL、id、配额、禁止字段和跨文件追溯校验，再判断：
 
 - **五层完整且不含结果变量**：社会处境/心理倾向/行为习惯/作答风格都非空（不是只有基础身份），且不含"满意度/使用意愿/推荐意愿/付费意愿"这类结果构念键。
 - **任务情境已事实化**：每个 persona 至少包含与其 archetype 相关的具体经历、资源、能力或环境限制；respondent 行不含 `task_friction_profile`、score、top friction 或答案规则。
@@ -163,10 +163,10 @@
 
 ```bash
 # 完整模拟
-python3 scripts/select_respondents.py runs/<时间戳>/ --mode full
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/select_respondents.py" runs/<时间戳>/ --mode full
 
 # 分层预演；seed 必须记录，默认 42
-python3 scripts/select_respondents.py runs/<时间戳>/ --mode stratified-pilot --n <n> --seed 42
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/select_respondents.py" runs/<时间戳>/ --mode stratified-pilot --n <n> --seed 42
 ```
 
 脚本写出 `selection.json`。pilot 必须覆盖每个 archetype；如果未达到每类 `variants_per_archetype`，标记为有限覆盖。pilot 结果只用于低成本预演，不能解释为完整场景覆盖。以后需要正式结果时，重新以 `full` 模式运行 WF4/WF5，不修改 persona pool。

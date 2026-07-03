@@ -15,8 +15,8 @@
 **第一步，跑脚本出统计，别自己算**：
 
 ```bash
-python3 scripts/analyze.py runs/<时间戳>/
-python3 scripts/validate_run.py runs/<时间戳>/ --stage wf5
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/analyze.py" runs/<时间戳>/
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf5
 ```
 
 产出 `stats.json`：每题的分布/均值，按人群分类的对比数字。几十条数据的算术看似简单，但手算容易出错，一错就会带偏后面所有判断，所以交给脚本。这批数字描述的是这次合成样本本身，不是真实人群的比例。

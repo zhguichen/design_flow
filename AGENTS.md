@@ -14,10 +14,15 @@
 
 ```
 design-flow/                        ← Git 仓库根目录
+├── .claude-plugin/
+│   └── marketplace.json            ← Claude Code marketplace 目录
 ├── README.md                       ← 给安装者看
 ├── AGENTS.md                       ← 本文件：给维护 Agent 看
 ├── CLAUDE.md                       ← 项目指令：Agent 入口
-├── design_flow/                    ← Skill 包（可独立分发/安装到 .claude/skills/）
+├── LICENSE                         ← MIT 许可证正文
+├── design_flow/                    ← 可独立缓存和安装的 plugin / Skill 包
+│   ├── .claude-plugin/
+│   │   └── plugin.json             ← plugin 元数据与版本
 │   ├── SKILL.md                    ← 根 skill：给使用 Agent 看的操作合同（主产出）
 │   ├── workflows/                  ← 5 个文件，共 7 个执行阶段
 │   │   ├── 01-survey-design.md
@@ -72,7 +77,7 @@ design-flow/                        ← Git 仓库根目录
 ## 发布前隐私扫描
 
 ```bash
-rg -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .
+rg --hidden -g '!.git/**' -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .
 ```
 
-扫描 1Password 引用（`op://`）、API key 风格串（`sk-` + 10+ 字符）、绝对用户路径（`/Users/`）。任何匹配都是红线。本命令会在 `AGENTS.md` 与 `docs/test.md` 自匹配（命令本身含 `op://` 与 `/Users/`），忽略这两处。`rg` 默认跳过 gitignore 文件，故 `reference-docs/`、`构建路线图.md`、`runs/` 不扫。本 skill 无 env 变量，故无 `.env.example`；示例 persona / 数据集必须虚构合成。
+扫描 1Password 引用（`op://`）、API key 风格串（`sk-` + 10+ 字符）、绝对用户路径（`/Users/`），并用 `--hidden` 覆盖 `.claude-plugin/`。任何匹配都是红线。本命令会在 `AGENTS.md` 与 `docs/test.md` 自匹配（命令本身含 `op://` 与 `/Users/`），忽略这两处。`rg` 仍跳过 gitignore 文件，故 `reference-docs/`、`构建路线图.md`、`runs/` 不扫。本 skill 无 env 变量，故无 `.env.example`；示例 persona / 数据集必须虚构合成。

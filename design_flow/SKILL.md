@@ -67,6 +67,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 ## Prerequisites
 
 - 无第三方依赖（skill 主体 Markdown + Python 标准库脚本）。
+- 作为 plugin 运行时，所有只读 workflow / reference / script 均以 `${CLAUDE_PLUGIN_ROOT}` 为根解析；运行产出始终写到用户当前项目的 `runs/`，不要写进 plugin 缓存。
 - 每阶段用 `scripts/validate_run.py` 做结构校验；门 3 用 `scripts/select_respondents.py` 选择 persona；Workflow 5 用 `scripts/analyze.py` 计算统计。
 - 运行时产出写 `runs/`（gitignore，不入库）。
 

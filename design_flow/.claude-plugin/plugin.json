@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "design-flow",
+  "displayName": "Design Flow",
+  "version": "0.1.0",
+  "description": "面向设计类学生与从业者的合成样本问卷预调研工作流。",
+  "author": {
+    "name": "design-flow maintainers"
+  },
+  "homepage": "https://github.com/zhguichen/design_flow",
+  "repository": "https://github.com/zhguichen/design_flow",
+  "license": "MIT",
+  "keywords": [
+    "design-research",
+    "survey",
+    "synthetic-persona",
+    "user-research"
+  ]
+}

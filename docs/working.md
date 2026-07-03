@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### 2026-07-03 — 包装 Claude Code plugin 与 marketplace
+
+- 新增仓库级 `.claude-plugin/marketplace.json`、plugin 级 `design_flow/.claude-plugin/plugin.json` 和 MIT `LICENSE`，首个发布版本定为 `0.1.0`。
+- README 改为官方 marketplace 安装方式，并区分 plugin 源码目录与用户项目工作目录：安装后无需每次指定 plugin 路径，`runs/` 写到启动 Claude 的当前项目。
+- plugin 内所有确定性脚本改用 `${CLAUDE_PLUGIN_ROOT}` 解析，避免安装到版本化缓存后误从用户项目查找 `scripts/`。
+- 发布前检查加入 marketplace/plugin 严格校验、版本同步、Git tag 和本地 `--plugin-dir` 冒烟测试；隐私扫描增加 `--hidden` 以覆盖新建的 `.claude-plugin/`。
+- 经验教训：filesystem skill 在源码仓库里能运行，不代表缓存安装后仍能运行。发布前必须显式区分只读 plugin 根与可写项目工作目录。
+
 ### 2026-07-03 — 门 3 支持确定性分层预演
 
 - 新增 `scripts/select_respondents.py`：支持 `full` 和 `stratified-pilot`；pilot 由用户指定 n，脚本按 archetype 分层选择具体 respondent id 并记录 seed。

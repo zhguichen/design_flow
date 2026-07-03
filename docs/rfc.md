@@ -2,7 +2,7 @@
 
 ## Overview
 
-`design-flow` 是 filesystem-native 的 Claude Code Skill：一个根 `SKILL.md` 入口 + 5 个按需加载的 workflow 文件（WF2 内含 A/B/C 三个 Phase，共 7 个执行阶段）+ 1 个编排命令 + 3 个确定性脚本。无插件运行时、无第三方依赖（仅 python3 标准库）、无 vendor lock-in。
+`design-flow` 是 filesystem-native 的 Claude Code Skill，并以单 Skill plugin 形式分发：一个根 `SKILL.md` 入口 + 5 个按需加载的 workflow 文件（WF2 内含 A/B/C 三个 Phase，共 7 个执行阶段）+ 1 个编排命令 + 3 个确定性脚本。plugin 只负责发现、版本和分发，不增加运行服务；执行依赖仍只有 python3 标准库。
 
 ## Design Principles
 
@@ -44,13 +44,16 @@ WF2 Phase A 只生成待校验原型；Phase B 用人文社科 / 心理学机制
 
 ```
 design-flow/
-├── SKILL.md                 ← 根 skill（精简入口，路由到 workflows）
-├── workflows/*.md           ← 5 个按需加载文件；WF2 内含 A/B/C 三个 Phase
-├── commands/run-pipeline.md ← 编排命令（串联 1→2A→2B→2C→3→4→5，三道确认门）
-├── scripts/analyze.py       ← WF5 确定性统计（python3 标准库）
-├── scripts/select_respondents.py ← full / stratified-pilot 分层选择
-├── scripts/validate_run.py  ← 各阶段统一结构与跨文件契约校验
-├── references/              ← 方法论沉淀（含行为机制库）
+├── .claude-plugin/marketplace.json ← marketplace 目录
+├── design_flow/
+│   ├── .claude-plugin/plugin.json  ← plugin 元数据与版本
+│   ├── SKILL.md             ← 根 skill（精简入口，路由到 workflows）
+│   ├── workflows/*.md       ← 5 个按需加载文件；WF2 内含 A/B/C 三个 Phase
+│   ├── commands/run-pipeline.md ← 编排命令（串联 1→2A→2B→2C→3→4→5，三道确认门）
+│   ├── scripts/analyze.py   ← WF5 确定性统计（python3 标准库）
+│   ├── scripts/select_respondents.py ← full / stratified-pilot 分层选择
+│   ├── scripts/validate_run.py ← 各阶段统一结构与跨文件契约校验
+│   └── references/          ← 方法论沉淀（含行为机制库）
 ├── docs/{prd,rfc,working,test}.md
 └── runs/                    ← 运行时产出（gitignore）
 ```
@@ -128,6 +131,5 @@ design-flow/
 
 ### 暂不做
 
-- `.claude-plugin/plugin.json`（先当轻量 skill；要发布成插件再加）
 - 完整 Python CLI 包（pyproject / tests，待第三个确定性需求）
 - 真实问卷分发 / 收集

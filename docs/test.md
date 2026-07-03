@@ -67,19 +67,21 @@ python3 -m json.tool runs/test/stats.json
 
 ### 回归检查（发布前）
 
-1. 跑隐私扫描（见下）
-2. 重跑 `analyze.py` 合成 fixture 对比 `stats.json`
-3. 确认根 SKILL ≤ ~200 行
-4. 确认 5 个 workflow 文件、7 个执行阶段的验收标准仍可机械检查
-5. 确认安装目录名为 `design-flow`（kebab），与 skill `name` 一致（带空格的目录名会触发 linter 警告；改名会改 cwd，在会话停顿点做）
+1. 运行 `claude plugin validate . --strict` 和 `claude plugin validate ./design_flow --strict`
+2. 确认 marketplace 与 plugin 的 `version` 一致；每次发布都递增语义版本并创建对应的 `v<version>` Git tag
+3. 跑隐私扫描（见下）
+4. 重跑 `analyze.py` 合成 fixture 对比 `stats.json`
+5. 确认根 SKILL ≤ ~200 行
+6. 确认 5 个 workflow 文件、7 个执行阶段的验收标准仍可机械检查
+7. 用 `claude --plugin-dir ./design_flow` 启动一次干净会话，确认 `/design-flow:run-pipeline` 可发现，且脚本从 `${CLAUDE_PLUGIN_ROOT}` 解析、产出写到当前项目的 `runs/`
 
 ## 隐私扫描（发布前必跑）
 
 ```bash
-rg -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .
+rg --hidden -g '!.git/**' -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .
 ```
 
-扫描 1Password 引用（`op://`）、API key 风格串（`sk-` + 10+ 字符）、绝对用户路径（`/Users/`）。任何匹配都是红线。本命令会在 `AGENTS.md` 与 `docs/test.md` 自匹配（命令本身含 `op://` 与 `/Users/`），忽略这两处。`rg` 默认跳过 gitignore 文件，故 `reference-docs/`、`构建路线图.md`、`runs/` 不扫。本 skill 无 env 变量，故无 `.env.example`；示例 persona / 数据集必须虚构合成。
+扫描 1Password 引用（`op://`）、API key 风格串（`sk-` + 10+ 字符）、绝对用户路径（`/Users/`），并用 `--hidden` 覆盖 `.claude-plugin/`。任何匹配都是红线。本命令会在 `AGENTS.md` 与 `docs/test.md` 自匹配（命令本身含 `op://` 与 `/Users/`），忽略这两处。`rg` 仍跳过 gitignore 文件，故 `reference-docs/`、`构建路线图.md`、`runs/` 不扫。本 skill 无 env 变量，故无 `.env.example`；示例 persona / 数据集必须虚构合成。
 
 ## What we don't test (yet)
 

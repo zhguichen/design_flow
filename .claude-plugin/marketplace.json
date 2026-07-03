@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "design-flow",
+  "description": "面向设计类学生与从业者的 Claude Code 预调研工具。",
+  "owner": {
+    "name": "design-flow maintainers"
+  },
+  "plugins": [
+    {
+      "name": "design-flow",
+      "source": "./design_flow",
+      "description": "用合成场景完成问卷设计、人群反推、persona 模拟填写与预调研分析。",
+      "version": "0.1.0"
+    }
+  ]
+}

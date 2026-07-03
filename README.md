@@ -17,7 +17,24 @@
 
 ## 安装
 
-本 skill 是轻量 Markdown skill（暂不打包成插件）。把仓库 clone 或拷贝到稳定位置，把根 `SKILL.md` 加入你的 AI agent 工作区 skill 发现链（INDEX.md / AGENTS.md / CLAUDE.md）。保持 `workflows/`、`commands/`、`scripts/`、`references/` 与 `SKILL.md` 同级，使相对引用能解析。
+本仓库按 Claude Code plugin + marketplace 发布。先安装最新版 Claude Code，然后执行：
+
+```bash
+claude plugin marketplace add zhguichen/design_flow
+claude plugin install design-flow@design-flow
+```
+
+插件默认安装到 user scope，可在所有项目中使用。安装后不需要每次指定 Skill 工作目录；只需先进入希望保存调研产出的项目目录，再启动 Claude：
+
+```bash
+mkdir -p my-survey-project
+cd my-survey-project
+claude
+```
+
+此时当前项目目录是运行工作目录，生成内容会写入其中的 `runs/<时间戳>/`。
+
+本地开发或尚未推送到 GitHub 时，在仓库根目录运行 `claude --plugin-dir ./design_flow`。`--plugin-dir` 指向插件目录，不是产出目录；如需在另一个项目里测试，可传绝对路径。
 
 需要 `python3`（标准库即可，无第三方包）做 persona 分层选择、每阶段结构校验和 Workflow 5 统计。
 
@@ -44,12 +61,12 @@
 
 ## 结构
 
-- `SKILL.md` — 根 skill（唯一入口，路由到 workflows）
-- `workflows/*.md` — 5 个 workflow 文件；WF2 内含人群反推 / 行为机制映射 / 任务摩擦映射三个 Phase，共 7 个执行阶段
-- `commands/run-pipeline.md` — 串联 1→2A→2B→2C→3→4→5 的编排命令
-- `scripts/analyze.py` — WF5 确定性统计
-- `scripts/validate_run.py` — 各阶段统一结构与跨文件契约校验
-- `scripts/select_respondents.py` — `full` 或 `stratified-pilot` 的确定性 persona 选择
+- `.claude-plugin/marketplace.json` — 仓库 marketplace 目录
+- `design_flow/.claude-plugin/plugin.json` — plugin 元数据与版本
+- `design_flow/SKILL.md` — 根 skill（唯一入口，路由到 workflows）
+- `design_flow/workflows/*.md` — 5 个 workflow 文件；WF2 内含人群反推 / 行为机制映射 / 任务摩擦映射三个 Phase，共 7 个执行阶段
+- `design_flow/commands/run-pipeline.md` — 串联 1→2A→2B→2C→3→4→5 的编排命令
+- `design_flow/scripts/*.py` — 分层选择、契约校验与确定性统计
 - `guides/` — 面向新手的使用说明与 workflow 设计理念
 - `docs/{prd,rfc,working,test}.md` — 需求 / 架构 / 变更日志 / 测试
 - `AGENTS.md` — 给维护 Agent 看
@@ -60,4 +77,4 @@
 
 ## License
 
-MIT
+[MIT](LICENSE)

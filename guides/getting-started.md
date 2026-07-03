@@ -35,7 +35,7 @@
 
 ## 安装后怎么开始
 
-确保 `design_flow/SKILL.md`、`workflows/`、`references/` 和 `scripts/` 保持在同一个 Skill 目录中，并且你的 Agent 能发现这个 Skill。
+通过 marketplace 安装后，不需要进入 Skill 源码目录。进入你希望保存本次调研文件的项目目录，再启动 Claude Code；这个目录会成为运行工作目录，产出写入其中的 `runs/`。
 
 进入准备保存项目产出的工作区，对 Agent 输入：
 
