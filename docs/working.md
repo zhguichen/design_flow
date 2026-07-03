@@ -4,6 +4,15 @@
 
 ## Changelog
 
+### 2026-07-03 — 门 3 支持确定性分层预演
+
+- 新增 `scripts/select_respondents.py`：支持 `full` 和 `stratified-pilot`；pilot 由用户指定 n，脚本按 archetype 分层选择具体 respondent id 并记录 seed。
+- 新增 `selection.json` 契约；WF4 只为入选 persona 作答，`responses_meta.selection` 记录 pool/selected/excluded、seed 与分层计数。
+- `analyze.py` 改为按实际 responses 计算 archetype 数，并把 selection 元数据写入 `stats.json`；validator 检查 selection、responses、stats 三者一致。
+- pilot 必须覆盖所有 archetype，n 不得小于 archetype 数；用户不得手工挑 id。pilot 报告标注“分层预演 / 不代表完整场景覆盖”，需要正式结果时对同一 persona pool 重跑 `full`。
+- 同步更新根 Skill、pipeline、WF3–WF5、README、PRD、RFC、测试和两份指南。
+- 经验教训：让用户决定计算预算是合理的，让用户在看到 persona 后挑具体对象会引入选择偏差。数量决策与个体选择必须分开，后者交给可复现的分层算法。
+
 ### 2026-07-03 — 新增新手指南与 workflow 设计理念
 
 - 新增 `guides/getting-started.md`：用非技术语言说明适用边界、使用前准备、启动方式、三道确认门、产出文件、报告阅读方式和常见问题。

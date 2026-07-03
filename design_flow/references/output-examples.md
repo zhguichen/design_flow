@@ -89,6 +89,23 @@
 
 ## WF4 response
 
+门 3 生成的 `selection.json`：
+
+```json
+{
+  "mode": "stratified-pilot",
+  "pool_n": 30,
+  "selected_n": 10,
+  "seed": 42,
+  "selected_respondent_ids": ["R001", "R004", "R008"],
+  "by_archetype": {"A1": 2, "A2": 2, "A3": 2, "A4": 2, "A5": 2},
+  "excluded_count": 20,
+  "coverage": {"all_archetypes_included": true, "variants_target_met": false}
+}
+```
+
+上面为字段片段，`selected_respondent_ids` 在正式文件中必须包含全部 10 个 id。
+
 ```json
 {"respondent_id":"R001","answers":[{"question_id":"Q1","answer":["质量判断","退换货"],"reasoning":"上次材质与页面描述不符，退货运费又高。","mechanism_id":"M1","uncertain":false}]}
 ```

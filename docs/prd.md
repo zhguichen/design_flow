@@ -33,6 +33,7 @@
 8. 预注册预测与模拟输入隔离：`hypotheses.json` 在模拟前封存，WF3 / WF4 不读取，WF5 才逐条对照；不支持假设时保留结果，不重生成。
 9. `simulation_n` 仅表示计算预算，`scenario_weight` 仅表示场景分配且记录来源；无真实依据时等权覆盖，不输出总体比例或抽样精度结论。
 10. 每个行为机制都有 `evidence_level`、`plausibility`、替代解释与证伪条件；理论卡片不作为目标场景证据，模型推断不升级为 `supported`。
+11. persona pool 进入模拟前支持 `full` 与 `stratified-pilot`；pilot 由用户指定 n、脚本分层选择具体 id，覆盖全部 archetype 并明确标注不代表完整场景覆盖。
 
 ## Non-Goals
 

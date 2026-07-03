@@ -8,7 +8,7 @@
 
 ## 输入
 
-`runs/<时间戳>/` 下：`responses.jsonl`、`survey.json`、`archetypes.json`、`behavior_mechanisms.json`、`task_frictions.json`、`hypotheses.json`、`respondents.jsonl`。本步是全流程唯一打开 `hypotheses.json` 的地方。
+`runs/<时间戳>/` 下：`responses.jsonl`、`selection.json`、`survey.json`、`archetypes.json`、`behavior_mechanisms.json`、`task_frictions.json`、`hypotheses.json`、`respondents.jsonl`。本步是全流程唯一打开 `hypotheses.json` 的地方。
 
 ## 方法
 
@@ -30,7 +30,7 @@ python3 scripts/validate_run.py runs/<时间戳>/ --stage wf5
 - 结合机制和任务摩擦的推导，说明表层说法背后可能的原因，并老实说这个解释有没有真实依据、还是纯属推断——推断的东西不能写得像已经证实。
 - 最后落到设计上：每条建议要能指回具体的原因（哪个机制、哪个摩擦点），不能只是"这题分数高，所以要重视"。
 
-结尾写清楚这份报告的边界：合成样本、多少条记录、是不是做了模拟隔离——没隔离的话可信度要打折扣，读者需要知道。
+结尾写清楚这份报告的边界：合成样本、persona pool 数、实际模拟数、选择模式、是不是做了模拟隔离。`stratified-pilot` 必须在标题或摘要标注“分层预演”，并声明不代表完整场景覆盖；假设对照只能视为预演结果。
 
 ## 输出
 

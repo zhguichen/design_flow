@@ -2,7 +2,7 @@
 
 ## Overview
 
-`design-flow` 是 filesystem-native 的 Claude Code Skill：一个根 `SKILL.md` 入口 + 5 个按需加载的 workflow 文件（WF2 内含 A/B/C 三个 Phase，共 7 个执行阶段）+ 1 个编排命令 + 2 个确定性脚本。无插件运行时、无第三方依赖（仅 python3 标准库）、无 vendor lock-in。
+`design-flow` 是 filesystem-native 的 Claude Code Skill：一个根 `SKILL.md` 入口 + 5 个按需加载的 workflow 文件（WF2 内含 A/B/C 三个 Phase，共 7 个执行阶段）+ 1 个编排命令 + 3 个确定性脚本。无插件运行时、无第三方依赖（仅 python3 标准库）、无 vendor lock-in。
 
 ## Design Principles
 
@@ -48,6 +48,7 @@ design-flow/
 ├── workflows/*.md           ← 5 个按需加载文件；WF2 内含 A/B/C 三个 Phase
 ├── commands/run-pipeline.md ← 编排命令（串联 1→2A→2B→2C→3→4→5，三道确认门）
 ├── scripts/analyze.py       ← WF5 确定性统计（python3 标准库）
+├── scripts/select_respondents.py ← full / stratified-pilot 分层选择
 ├── scripts/validate_run.py  ← 各阶段统一结构与跨文件契约校验
 ├── references/              ← 方法论沉淀（含行为机制库）
 ├── docs/{prd,rfc,working,test}.md
@@ -66,7 +67,7 @@ design-flow/
 5. result-analysis     stats.json（脚本）+ report.md（LLM）
 ```
 
-三道确认门：问卷确认；完整 audience package 与最终 `simulation_n` 确认；persona 抽样确认。内部 Phase 验收通过时自动推进，Stop 条件仍在当步拦截。WF4 与 WF5 在第三道门后连续运行。
+三道确认门：问卷确认；完整 audience package 与最终 `simulation_n` 确认；persona 抽查与 `full` / `stratified-pilot` 模式确认。内部 Phase 验收通过时自动推进，Stop 条件仍在当步拦截。WF4 与 WF5 在第三道门后连续运行。
 
 ### 关键契约
 
@@ -76,6 +77,7 @@ design-flow/
 - WF2 Phase C `task_frictions.json` 的 `question_context_coverage` + drivers → WF3 将具体经历、资源、能力和环境限制写入五层 persona
 - WF2 Phase C 另写 `hypotheses.json` 并封存 → WF3 / WF4 禁止读取 → WF5 首次加载并逐条标记支持状态
 - WF3 的可观察背景 + `mechanism_trace` → WF4 盲模拟作答，不接收任务摩擦文件或预期结果方向
+- WF3 persona pool → `selection.json`：`full` 全选，或用户指定 n 后由脚本分层选择；不允许手工挑 id
 - WF3 `respondent_id` + `mechanism_trace` → WF4 作答；WF5 再用 source id、机制与模拟前任务情境解释实际模式
 
 ## Trade-Offs
@@ -102,7 +104,7 @@ design-flow/
 
 ### 何时引入 scripts/
 
-**选：保留两个标准库脚本，不引入完整 CLI 包。** `analyze.py` 负责统计事实；`validate_run.py` 被 7 个阶段重复调用，统一检查结构、id、禁止字段和跨文件引用。方法合理性仍由 LLM 判断。无 pyproject / 第三方依赖，待脚本继续复杂化再升级为完整包。
+**选：保留三个标准库脚本，不引入完整 CLI 包。** `select_respondents.py` 负责可复现的分层选择，`analyze.py` 负责统计事实，`validate_run.py` 统一检查结构、id、禁止字段和跨文件引用。方法合理性仍由 LLM 判断。无 pyproject / 第三方依赖，待脚本继续复杂化再升级为完整包。
 
 ### 三道确认门 vs 每步暂停
 

@@ -316,15 +316,64 @@ class Validator:
         respondents = self.jsonl_file("respondents.jsonl")
         responses = self.jsonl_file("responses.jsonl")
         meta = self.json_file("responses_meta.json")
+        selection = self.json_file("selection.json")
         _, mechanisms = self.mechanism_context()
         _, question_map, _ = self.survey_context()
-        if respondents is None or responses is None or not isinstance(meta, dict):
+        if (
+            respondents is None
+            or responses is None
+            or not isinstance(meta, dict)
+            or not isinstance(selection, dict)
+        ):
             return
         respondent_ids = {row.get("respondent_id") for row in respondents}
+        respondent_arch = {
+            row.get("respondent_id"): row.get("archetype_id") for row in respondents
+        }
         response_ids = [row.get("respondent_id") for row in responses]
         self.unique(response_ids, "responses")
-        if set(response_ids) != respondent_ids:
-            self.error("responses must correspond one-to-one with respondents")
+        self.require_keys(
+            selection,
+            (
+                "mode",
+                "pool_n",
+                "selected_n",
+                "requested_n",
+                "seed",
+                "selected_respondent_ids",
+                "by_archetype",
+                "excluded_count",
+                "coverage",
+                "note",
+            ),
+            "selection.json",
+        )
+        selected_ids = selection.get("selected_respondent_ids", [])
+        self.unique(selected_ids, "selection.selected_respondent_ids")
+        if set(selected_ids) - respondent_ids:
+            self.error("selection.json contains unknown respondent ids")
+        if selection.get("pool_n") != len(respondents):
+            self.error("selection.pool_n must equal persona pool size")
+        if selection.get("selected_n") != len(selected_ids):
+            self.error("selection.selected_n must equal selected id count")
+        if selection.get("excluded_count") != len(respondents) - len(selected_ids):
+            self.error("selection.excluded_count is inconsistent")
+        expected_by_arch = Counter(respondent_arch[rid] for rid in selected_ids)
+        if selection.get("by_archetype") != dict(sorted(expected_by_arch.items())):
+            self.error("selection.by_archetype does not match selected ids")
+        mode = selection.get("mode")
+        if mode == "full":
+            if set(selected_ids) != respondent_ids:
+                self.error("full selection must include every respondent")
+        elif mode == "stratified-pilot":
+            if set(expected_by_arch) != set(respondent_arch.values()):
+                self.error("stratified pilot must select at least one respondent per archetype")
+            if not selection.get("coverage", {}).get("all_archetypes_included"):
+                self.error("stratified pilot must include every archetype")
+        else:
+            self.error("selection.mode must be full or stratified-pilot")
+        if set(response_ids) != set(selected_ids):
+            self.error("responses must correspond one-to-one with selection.json")
         forbidden = {
             "hypothesis_id",
             "predicted_pattern",
@@ -362,20 +411,32 @@ class Validator:
                 mid = answer.get("mechanism_id")
                 if mid and mid not in mechanisms:
                     self.error(f"response {rid}/{qid} references unknown mechanism {mid}")
-        self.require_keys(meta, ("count", "blinding", "quality", "invalid_patterns_detected", "note"), "responses_meta.json")
+        self.require_keys(meta, ("count", "selection", "blinding", "quality", "invalid_patterns_detected", "note"), "responses_meta.json")
         if meta.get("count") != len(responses):
             self.error("responses_meta.count must equal responses row count")
+        meta_selection = meta.get("selection", {})
+        for key in ("mode", "pool_n", "selected_n", "seed", "by_archetype", "excluded_count"):
+            if meta_selection.get(key) != selection.get(key):
+                self.error(f"responses_meta.selection.{key} must match selection.json")
         blinding = meta.get("blinding", {})
         if blinding.get("hypotheses_loaded") is not False or blinding.get("task_frictions_loaded") is not False:
             self.error("responses_meta.blinding must record hypotheses/task_frictions as not loaded")
         if blinding.get("level") == "procedural" and meta.get("quality", {}).get("overall") == "high":
             self.error("procedural blinding cannot have high overall quality")
+        if mode == "stratified-pilot" and meta.get("quality", {}).get("overall") == "high":
+            self.error("stratified-pilot overall quality cannot be high")
 
     def wf5(self):
         stats = self.json_file("stats.json")
+        selection = self.json_file("selection.json")
         report_path = self.run / "report.md"
         if isinstance(stats, dict):
             self.require_keys(stats, ("total_n", "by_archetype", "per_question", "cross_tabs_by_archetype", "note"), "stats.json")
+            if isinstance(selection, dict):
+                if stats.get("total_n") != selection.get("selected_n"):
+                    self.error("stats.total_n must equal selection.selected_n")
+                if stats.get("selection", {}).get("mode") != selection.get("mode"):
+                    self.error("stats.selection.mode must match selection.json")
         if not report_path.exists():
             self.error(f"missing required file: {report_path}")
             return
@@ -383,6 +444,9 @@ class Validator:
         for marker in ("合成样本", "仅供预调研", "这批人整体怎么想", "我们当初的猜测对不对", "这份报告能信多少"):
             if marker not in text:
                 self.error(f"report.md missing required marker: {marker}")
+        if isinstance(selection, dict) and selection.get("mode") == "stratified-pilot":
+            if "分层预演" not in text or "完整场景覆盖" not in text:
+                self.error("pilot report must disclose 分层预演 and incomplete coverage")
 
     def run_stage(self, stage):
         getattr(self, stage)()

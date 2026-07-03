@@ -59,7 +59,7 @@ design-flow/                        ← Git 仓库根目录
 
 ## 环境
 
-- Skill 主体是 Markdown，LLM 驱动。`scripts/validate_run.py` 统一各阶段的结构与跨文件契约校验，`scripts/analyze.py` 为 Workflow 5 提供确定性统计；两者均只用 python3 标准库。
+- Skill 主体是 Markdown，LLM 驱动。`scripts/select_respondents.py` 负责确定性 persona 分层选择，`scripts/validate_run.py` 统一契约校验，`scripts/analyze.py` 提供 Workflow 5 统计；均只用 python3 标准库。
 - 确定性计算（如统计）若需引入，遵循"使用 3 次以上才提取为 `scripts/`"原则。
 
 ## Git 约定

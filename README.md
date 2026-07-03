@@ -19,7 +19,7 @@
 
 本 skill 是轻量 Markdown skill（暂不打包成插件）。把仓库 clone 或拷贝到稳定位置，把根 `SKILL.md` 加入你的 AI agent 工作区 skill 发现链（INDEX.md / AGENTS.md / CLAUDE.md）。保持 `workflows/`、`commands/`、`scripts/`、`references/` 与 `SKILL.md` 同级，使相对引用能解析。
 
-需要 `python3`（标准库即可，无第三方包）做每阶段结构校验和 Workflow 5 统计。
+需要 `python3`（标准库即可，无第三方包）做 persona 分层选择、每阶段结构校验和 Workflow 5 统计。
 
 ## 新手入口
 
@@ -36,9 +36,9 @@
 /design-flow:run-pipeline 年轻租房群体对模块化家具的需求与购买决策调研
 ```
 
-全链只在问卷、audience package + 模拟规模、persona 抽样三处暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
+全链只在问卷、audience package + 模拟规模、persona 抽查 + 模拟模式三处暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
 
-产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` + 封存的 `hypotheses.json` → `respondents.jsonl` → `responses.jsonl` → `stats.json` + `report.md`。WF3 / WF4 不读取预测，WF5 才打开假设逐条对照，避免模拟数据自证预设结论。
+产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` + 封存的 `hypotheses.json` → `respondents.jsonl` → `selection.json` → `responses.jsonl` → `stats.json` + `report.md`。门 3 可选择全部模拟，或只指定 n 做确定性分层预演；用户不手工挑 persona。WF3 / WF4 不读取预测，WF5 才打开假设逐条对照。
 
 如果是给队友看本轮修改，先读 `docs/change-summary.md`。
 
@@ -49,6 +49,7 @@
 - `commands/run-pipeline.md` — 串联 1→2A→2B→2C→3→4→5 的编排命令
 - `scripts/analyze.py` — WF5 确定性统计
 - `scripts/validate_run.py` — 各阶段统一结构与跨文件契约校验
+- `scripts/select_respondents.py` — `full` 或 `stratified-pilot` 的确定性 persona 选择
 - `guides/` — 面向新手的使用说明与 workflow 设计理念
 - `docs/{prd,rfc,working,test}.md` — 需求 / 架构 / 变更日志 / 测试
 - `AGENTS.md` — 给维护 Agent 看

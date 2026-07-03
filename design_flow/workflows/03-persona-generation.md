@@ -152,13 +152,32 @@
 - `simulation_plan` 缺失 → 回 WF2 制定场景覆盖计划。
 - `simulation_n` 小于基础覆盖量 → 问用户要不要加预算，或回 WF2 合并有依据的场景——不要静默丢弃 archetype。
 
+## 门 3：选择模拟模式
+
+展示 persona 抽样与完整 `by_archetype` 分配后，让用户二选一：
+
+- `full`：全部 persona 进入 WF4，作为完整场景模拟。
+- `stratified-pilot`：用户只指定预演数量 n，具体 persona 由脚本按 archetype 确定性分层抽取。n 不得小于 archetype 数，不能让用户手工挑 respondent id。
+
+运行：
+
+```bash
+# 完整模拟
+python3 scripts/select_respondents.py runs/<时间戳>/ --mode full
+
+# 分层预演；seed 必须记录，默认 42
+python3 scripts/select_respondents.py runs/<时间戳>/ --mode stratified-pilot --n <n> --seed 42
+```
+
+脚本写出 `selection.json`。pilot 必须覆盖每个 archetype；如果未达到每类 `variants_per_archetype`，标记为有限覆盖。pilot 结果只用于低成本预演，不能解释为完整场景覆盖。以后需要正式结果时，重新以 `full` 模式运行 WF4/WF5，不修改 persona pool。
+
 ## 红线
 
 继承 `SKILL.md` 的跨 workflow 红线。本步独有：**不照搬 `persona_generator.py` 的固定规则分类**（usage_frequency → archetype）——本项目是 LLM 驱动、按问卷反推变量，archetype 由 WF2 定，这里只展开个体，只借它的 3-part 置信度结构。
 
 ## 下一步
 
-受访者就绪后进入 `workflows/04-response-simulation.md`：LLM 以每个 persona 身份，只依据五层人物故事与 `mechanism_trace` 认真作答问卷，产出 `responses.jsonl`。
+`selection.json` 就绪后进入 `workflows/04-response-simulation.md`：LLM 只为入选 persona 作答，产出 `responses.jsonl`。
 
 ## 示例
 

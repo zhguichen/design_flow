@@ -2,7 +2,7 @@
 """
 design-flow — deterministic stats for Workflow 5 (result-analysis).
 
-Reads a run directory (responses.jsonl + survey.json + respondents.jsonl)
+Reads a run directory (responses.jsonl + survey.json + respondents.jsonl + selection.json)
 and writes stats.json: per-question descriptive stats + cross-tabs by archetype.
 
 Phase 1 of WF5. The LLM (phase 2) reads stats.json + responses.jsonl to do
@@ -78,7 +78,7 @@ def ranking_stats(entries):
 
 def analyze(run_dir):
     run = Path(run_dir)
-    required = ["survey.json", "respondents.jsonl", "responses.jsonl"]
+    required = ["survey.json", "respondents.jsonl", "responses.jsonl", "selection.json"]
     for name in required:
         if not (run / name).exists():
             raise AnalyzeError(f"missing required file: {run / name}")
@@ -88,7 +88,8 @@ def analyze(run_dir):
     responses = load_jsonl(run / "responses.jsonl")
 
     arch_map = {r["respondent_id"]: r.get("archetype_id") for r in respondents}
-    arch_counts = Counter(arch_map.values())
+    response_ids = [response["respondent_id"] for response in responses]
+    arch_counts = Counter(arch_map.get(rid) for rid in response_ids)
 
     questions = survey.get("questions", [])
     answers_by_q = defaultdict(list)  # qid -> [(respondent_id, answer, uncertain)]
@@ -168,7 +169,7 @@ def analyze(run_dir):
                 "note": "unsupported type",
             }
 
-    return {
+    result = {
         "total_n": len(responses),
         "by_archetype": {str(k): v for k, v in arch_counts.items()},
         "per_question": per_question,
@@ -179,6 +180,20 @@ def analyze(run_dir):
             "theme coding & insights by LLM"
         ),
     }
+    selection = load_json(run / "selection.json")
+    result["selection"] = {
+        key: selection.get(key)
+        for key in (
+            "mode",
+            "pool_n",
+            "selected_n",
+            "seed",
+            "by_archetype",
+            "excluded_count",
+            "coverage",
+        )
+    }
+    return result
 
 
 def main():

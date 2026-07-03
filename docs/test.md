@@ -2,7 +2,7 @@
 
 ## What we test
 
-`design-flow` 是 Markdown skill + 两个 python3 标准库脚本。测试分两层：脚本验证 + skill 方法验收。
+`design-flow` 是 Markdown skill + 三个 python3 标准库脚本。测试分两层：脚本验证 + skill 方法验收。
 
 ### scripts/analyze.py（确定性脚本）
 
@@ -20,6 +20,10 @@ python3 -m json.tool runs/test/stats.json
 
 对现有运行目录验证正反路径：符合当前契约的 WF1/WF2A/WF2B 通过；旧版含摩擦分数、重复机制字段的运行目录在 WF2C/WF3/WF4 被拒绝。发布前至少运行一次通过路径与一次预期失败路径，并检查错误信息指向具体文件或记录。
 
+### scripts/select_respondents.py（确定性分层选择）
+
+验证同一 persona pool、n 和 seed 重复运行得到相同 id；pilot 覆盖全部 archetype；n 小于 archetype 数、等于或大于 pool 时必须失败；`full` 必须选择全部 persona。
+
 ### Acceptance Criteria
 
 字段结构、id 唯一性、禁止字段、跨文件引用和强类型只有一个机械事实来源：`scripts/validate_run.py`。各 workflow 的“完成前确认”只保留无法可靠自动判断的方法质量。
@@ -31,14 +35,14 @@ python3 -m json.tool runs/test/stats.json
 | WF2 Phase B | `... --stage wf2b` | domain 路由、机制合理性与竞争解释 |
 | WF2 Phase C | `... --stage wf2c` | drivers 是否可观察、假设是否有意义 |
 | WF3 | `... --stage wf3` | persona 是否自然、同类差异是否可信 |
-| WF4 | `... --stage wf4` | reasoning 是否像该 persona、是否存在无效模式 |
+| WF4 | `... --stage wf4` | selection 是否符合用户模式、reasoning 是否像该 persona、是否存在无效模式 |
 | WF5 | `python3 scripts/analyze.py runs/<ts>/` 后运行 `... --stage wf5` | 主题编码、机制解释与设计建议 |
 
 ### Pipeline 手动 QA 场景
 
 | # | 场景 | 期望 |
 |---|---|---|
-| 1 | 给研究问题跑 run-pipeline 全链 | 7 个执行阶段产出齐全；只在问卷、audience package + N、persona 抽样三处确认；report.md 区分模拟 / 机制与任务摩擦解释 / 假设 |
+| 1 | 给研究问题跑 run-pipeline 全链 | 7 个执行阶段产出齐全；只在问卷、audience package + N、persona 抽查 + 模拟模式三处确认；report.md 区分模拟 / 机制与任务摩擦解释 / 假设 |
 | 2 | WF1 给烂问卷（双重题） | 验收拦下、要求修订 |
 | 3 | WF2 把"使用意愿"塞进变量设定 | 红线触发、拒绝 |
 | 4 | WF3 同 archetype 个体复制 | anti-pattern elastic 拦下、重生成 |
@@ -58,6 +62,8 @@ python3 -m json.tool runs/test/stats.json
 | 18 | run-pipeline 在内部 Phase 重复询问“是否继续”，或确认门只给验收结果不展示产出 | 拦下；只保留三道门，并完整展示自上次门禁以来的产出 |
 | 19 | WF1 未获得模拟规模就填 `null` 并继续 | 允许；WF1 只记录已有预算偏好，统一在 audience package 门禁确认 |
 | 20 | WF2 Phase A 单独询问 `simulation_n`，或 Phase C 后未确认最终值就进入 WF3 | 拦下；只在完整 audience package 门禁确认一次 |
+| 21 | 用户在门 3 手工挑选具体 persona | 拦下；用户只选择 `full` 或指定 pilot n，具体 id 由脚本按 archetype 分层选择 |
+| 22 | pilot n 小于 archetype 数，或报告未标有限覆盖 | 拦下；重新选择 n，并在报告声明“分层预演 / 不代表完整场景覆盖” |
 
 ### 回归检查（发布前）
 
