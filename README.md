@@ -21,6 +21,13 @@
 
 需要 `python3`（标准库即可，无第三方包）做每阶段结构校验和 Workflow 5 统计。
 
+## 新手入口
+
+第一次使用、不熟悉 Skill 或用户研究流程，先读：
+
+- [小白使用指南](guides/getting-started.md) — 从准备研究问题到阅读最终报告的操作指南
+- [Workflow 设计理念](guides/workflow-design.md) — 7 个执行阶段为什么这样设计、各自防止什么错误
+
 ## 使用
 
 给 AI agent 一句研究问题，用编排命令跑全链：
@@ -42,6 +49,7 @@
 - `commands/run-pipeline.md` — 串联 1→2A→2B→2C→3→4→5 的编排命令
 - `scripts/analyze.py` — WF5 确定性统计
 - `scripts/validate_run.py` — 各阶段统一结构与跨文件契约校验
+- `guides/` — 面向新手的使用说明与 workflow 设计理念
 - `docs/{prd,rfc,working,test}.md` — 需求 / 架构 / 变更日志 / 测试
 - `AGENTS.md` — 给维护 Agent 看
 
