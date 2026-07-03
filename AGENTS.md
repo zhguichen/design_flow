@@ -38,8 +38,7 @@ design-flow/                        ← Git 仓库根目录
 │   ├── prd.md                      ← 产品需求
 │   ├── rfc.md                      ← 架构决策与权衡
 │   ├── working.md                  ← 变更日志 + 经验教训（持续追加）
-│   ├── test.md                     ← 验收标准清单
-│   └── change-summary.md           ← 变更摘要
+│   └── test.md                     ← 验收标准清单
 ├── guides/                         ← 面向新手的使用与设计理念说明
 │   ├── getting-started.md
 │   └── workflow-design.md
