@@ -10,7 +10,7 @@ Use this chain:
 
 `task context -> current behavior -> environment constraint -> capability/resource -> mechanism -> friction dimension`
 
-If the chain cannot be built, mark the context mapping as low confidence or exclude it. Do not append an answer direction; predicted differences belong only in sealed `hypotheses.json`.
+If the chain cannot be built, mark the context mapping as low confidence or exclude it. Do not append an answer direction, predicted group difference, score, or answer rule.
 
 ## Friction Dimensions
 

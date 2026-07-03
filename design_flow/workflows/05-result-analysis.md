@@ -2,13 +2,13 @@
 
 把合成问卷数据变成一份能支持设计决策的报告：这批人怎么答的、为什么这么答、这对设计意味着什么。
 
-报告要分清三层,读者才知道能信到什么程度：数据里看到的模式、机制推导出的解释原因、还需要真人验证才能确认的假设。三者不能混着写。
+报告要分清三层，读者才知道能信到什么程度：数据里看到的模式、机制推导出的可能解释、还需要真人确认的问题。三者不能混着写。
 
 按需从根 `SKILL.md` 加载。依赖 WF4 的 `responses.jsonl`。pipeline 终端步骤。无 `responses.jsonl` → 回 WF4。
 
 ## 输入
 
-`runs/<时间戳>/` 下：`responses.jsonl`、`selection.json`、`survey.json`、`archetypes.json`、`behavior_mechanisms.json`、`task_frictions.json`、`hypotheses.json`、`respondents.jsonl`。本步是全流程唯一打开 `hypotheses.json` 的地方。
+`runs/<时间戳>/` 下：`responses.jsonl`、`selection.json`、`survey.json`、`archetypes.json`、`behavior_mechanisms.json`、`task_frictions.json`、`respondents.jsonl`。
 
 ## 方法
 
@@ -26,11 +26,10 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 - 先看这批人整体怎么答的,哪里的意见明显分裂,哪里又出乎意料地一致。
 - 打开开放题原文和 reasoning，找里面反复出现的具体场景和说法,归纳成几个主题,讲清楚每个主题背后"人是怎么想的"。归纳时留意别只用前几条回答定调——多翻几条,把明显只有一个人这么说的情况标出来,不当成普遍结论。
 - 不同类型的人（archetype）在哪些地方答法不一样,这种不一样能不能用之前推导的机制解释。
-- 这时候才打开预注册的 `hypotheses.json`，看当初的预测对不对——预测错了就直说错了，不要为了让报告看起来"猜得准"而把结论往假设上靠。
 - 结合机制和任务摩擦的推导，说明表层说法背后可能的原因，并老实说这个解释有没有真实依据、还是纯属推断——推断的东西不能写得像已经证实。
 - 最后落到设计上：每条建议要能指回具体的原因（哪个机制、哪个摩擦点），不能只是"这题分数高，所以要重视"。
 
-结尾写清楚这份报告的边界：合成样本、persona pool 数、实际模拟数、选择模式、是不是做了模拟隔离。`stratified-pilot` 必须在标题或摘要标注“分层预演”，并声明不代表完整场景覆盖；假设对照只能视为预演结果。
+结尾写清楚这份报告的边界：合成样本、persona pool 数、实际模拟数、选择模式、是不是做了模拟隔离。`stratified-pilot` 必须在标题或摘要标注“分层预演”，并声明不代表完整场景覆盖。
 
 ## 输出
 
@@ -53,9 +52,6 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 ## 不同的人有什么不一样
 哪类人和哪类人在哪些问题上分歧最大，用机制解释这种分歧从哪来。
 
-## 我们当初的猜测对不对
-预注册假设逐条说：猜对了、猜错了，还是数据不够说不清。
-
 ## 这对设计意味着什么
 每条建议直接对应一个原因（机制或摩擦点），讲清楚"为什么这样设计"而不只是"应该这样设计"。
 
@@ -67,7 +63,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 
 - `responses.jsonl` 不存在 → 回 WF4。
 - `stats.json` 生成失败 → 先查 `responses.jsonl` 格式对不对，不要让 LLM 编一份统计顶上去。
-- 假设"不支持"却想写成"基本符合" → 停下来，按实际结果写，这是防止分析变成自我实现预言的底线。
+- 机制解释与回答原文或统计不一致 → 停下来，保留实际模式并把解释标为推断，不为形成漂亮结论而重写数据。
 
 ## 红线
 

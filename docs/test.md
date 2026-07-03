@@ -33,7 +33,7 @@ python3 -m json.tool runs/test/stats.json
 | WF1 | `python3 scripts/validate_run.py runs/<ts>/ --stage wf1` | 题序、偏差、措辞与研究适配 |
 | WF2 Phase A | `... --stage wf2a` | 原型是否自洽、是否真的影响回答 |
 | WF2 Phase B | `... --stage wf2b` | domain 路由、机制合理性与竞争解释 |
-| WF2 Phase C | `... --stage wf2c` | drivers 是否可观察、假设是否有意义 |
+| WF2 Phase C | `... --stage wf2c` | drivers 是否可观察、是否混入答案方向 |
 | WF3 | `... --stage wf3` | persona 是否自然、同类差异是否可信 |
 | WF4 | `... --stage wf4` | selection 是否符合用户模式、reasoning 是否像该 persona、是否存在无效模式 |
 | WF5 | `python3 scripts/analyze.py runs/<ts>/` 后运行 `... --stage wf5` | 主题编码、机制解释与设计建议 |
@@ -42,7 +42,7 @@ python3 -m json.tool runs/test/stats.json
 
 | # | 场景 | 期望 |
 |---|---|---|
-| 1 | 给研究问题跑 run-pipeline 全链 | 7 个执行阶段产出齐全；只在问卷、audience package + N、persona 抽查 + 模拟模式三处确认；report.md 区分模拟 / 机制与任务摩擦解释 / 假设 |
+| 1 | 给研究问题跑 run-pipeline 全链 | 7 个执行阶段产出齐全；只在问卷、audience package + N、persona 抽查 + 模拟模式三处确认；report.md 区分模拟模式 / 可能解释 / 需真人确认的问题 |
 | 2 | WF1 给烂问卷（双重题） | 验收拦下、要求修订 |
 | 3 | WF2 把"使用意愿"塞进变量设定 | 红线触发、拒绝 |
 | 4 | WF3 同 archetype 个体复制 | anti-pattern elastic 拦下、重生成 |
@@ -53,8 +53,8 @@ python3 -m json.tool runs/test/stats.json
 | 9 | WF2 把所有可能组合都纳入 | 拦下，要求只保留有机制链且影响回答的类型 |
 | 10 | WF4 对“哪个环节更麻烦”只按性格作答，或按摩擦分数查表 | 拦下；WF2 Phase C drivers 必须先事实化进 persona，WF4 只根据人物故事独立作答 |
 | 11 | 问卷只有“是否愿意”没有痛点/任务题 | 回 WF1 重写问卷，不能进入 WF2 Phase C |
-| 12 | WF3 / WF4 读取 `hypotheses.json` 或复制预测方向 | 拦下；清除预测字段后重新生成，WF5 前保持封存 |
-| 13 | 模拟结果不支持预注册假设 | 保留原结果，WF5 标记 `not_supported` 或 `inconclusive`，不得重生成 |
+| 12 | archetype、机制、任务摩擦或 persona 含逐题预测方向 | 拦下；只保留原因和可观察事实，不允许答案阈值、排序或结果方向 |
+| 13 | 模拟分群差异不明显，试图按预期重生成 | 保留原结果；检查问卷区分度、选项与 persona 场景输入，不粉饰数据 |
 | 14 | WF2 没有真实分布依据却给出不等权“现实比例” | 拦下；改用 `coverage-default` 等权，或要求明确标注用户设定/模型假设 |
 | 15 | WF5 把模拟百分比解释为目标总体发生率 | 拦下；改写为本次合成场景内模式并声明不可外推 |
 | 16 | WF2 Phase B 只套理论卡片就标 `supported` | 拦下；改为 `model-inference` + `plausible/speculative`，补替代解释与证伪条件 |

@@ -55,7 +55,7 @@ claude
 
 全链只在问卷、audience package + 模拟规模、persona 抽查 + 模拟模式三处暂停确认。也可只跑某一步（如只设计问卷），agent 直接 load 对应 `workflows/0X-*.md`。
 
-产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` + 封存的 `hypotheses.json` → `respondents.jsonl` → `selection.json` → `responses.jsonl` → `stats.json` + `report.md`。门 3 可选择全部模拟，或只指定 n 做确定性分层预演；用户不手工挑 persona。WF3 / WF4 不读取预测，WF5 才打开假设逐条对照。
+产出落在 `runs/<时间戳>/`：`survey.json` → `archetypes.json` → `behavior_mechanisms.json` → `task_frictions.json` → `respondents.jsonl` → `selection.json` → `responses.jsonl` → `stats.json` + `report.md`。门 3 可选择全部模拟，或只指定 n 做确定性分层预演；用户不手工挑 persona。上游不生成逐题预测或答案规则，WF4 只根据 persona 故事独立作答。
 
 如果是给队友看本轮修改，先读 `docs/change-summary.md`。
 

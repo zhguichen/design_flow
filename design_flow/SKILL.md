@@ -33,7 +33,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 2. audience-analysis   人群分析        → runs/<ts>/archetypes.json
   Phase A 人群反推                       └─ archetypes.json
   Phase B 行为机制映射                   └─ behavior_mechanisms.json
-  Phase C 任务摩擦映射                   └─ task_frictions.json + hypotheses.json（封存）
+  Phase C 任务摩擦映射                   └─ task_frictions.json
 3. persona-generation  persona 生成    → respondents.jsonl + meta + selection.json
 4. response-simulation 模拟作答        → runs/<ts>/responses.jsonl + responses_meta.json
 5. result-analysis     结果分析        → runs/<ts>/stats.json + report.md
@@ -48,7 +48,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 | 触发 | 加载 | 产出 |
 |---|---|---|
 | 用户给研究问题 / 目标人群，需设计问卷；或 `survey.json` 不存在 | `workflows/01-survey-design.md` | `survey.json` |
-| `survey.json` 就绪，需反推人群、匹配机制、映射任务摩擦、封存假设 | `workflows/02-audience-analysis.md` | `archetypes.json` + `behavior_mechanisms.json` + `task_frictions.json` + 封存的 `hypotheses.json` |
+| `survey.json` 就绪，需反推人群、匹配机制、映射任务摩擦 | `workflows/02-audience-analysis.md` | `archetypes.json` + `behavior_mechanisms.json` + `task_frictions.json` |
 | 以上四文件就绪，需展开并选择具体受访者 | `workflows/03-persona-generation.md` | `respondents.jsonl` + meta + `selection.json` |
 | `respondents.jsonl` 就绪，需模拟作答 | `workflows/04-response-simulation.md` | `responses.jsonl` + meta |
 | `responses.jsonl` 就绪，需分析 | `workflows/05-result-analysis.md` | `stats.json` + `report.md` |
@@ -62,7 +62,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 
 任何输出（人群画像 / 行为机制 / 任务摩擦 / 模拟数据集 / 分析报告）都必须标注：**合成样本 / 合成记录数 / 场景覆盖质量 / 仅供预调研**。`simulation_n` 是计算预算，`scenario_weight` 是场景分配权重；二者都不代表真实总体、抽样精度或现实比例。结果变量（满意度 / 使用意愿 / 推荐意愿 / 付费意愿）不能作为 persona 背景设定，也不能以预期方向传入模拟阶段；只设定影响它们的原因。人群类型必须能追溯到“环境/事件 → 处境/限制 → 行为机制 → 任务摩擦 → 表层需求/假设性潜在动机”的因果输入链。机制只提供可检验合理性，不证明该类人真实存在；没有连贯、可证伪机制或任务摩擦支撑的场景不进入模拟。
 
-`hypotheses.json` 是模拟前封存的预测：WF3 / WF4 禁止读取，WF5 才能首次加载并逐条对照。模拟结果不支持假设时不得重生成或纠偏。
+任何阶段都不得生成逐题预测方向、答案阈值或分数查表。WF3 只把可观察经历、资源、能力和限制写进 persona，WF4 再根据人物故事独立作答。
 
 所有 JSON / JSONL 的自然语言字符串如需引用短语，统一使用中文书名号式引号 `「」`，例如 `"描述": "主要考虑「好不好打理」"`。不要在字符串内部直接嵌入未转义的 ASCII 双引号；文件写入后必须先通过 JSON 解析与阶段校验。
 
@@ -83,11 +83,10 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 - `archetypes.json` 使用带来源的 `scenario_weight` 与 `simulation_plan`；无真实依据时等权覆盖，不声称现实比例。
 - `behavior_mechanisms.json` 覆盖每个 archetype，并标注证据等级、合理性、表层需求、假设性潜在动机、替代解释和证伪条件；仅模型推断时不得标为 `supported`。
 - `task_frictions.json` 覆盖每个 archetype 和所有痛点/排序/开放/使用边界题，并标注可观察 drivers、机制追溯和置信度；不生成分数到答案的查表规则。
-- `hypotheses.json` 在模拟前标记 `status=sealed`；respondents / responses 不含预测方向或 hypothesis 内容。
 - 进入 WF4 前向用户显示 subagent 隔离说明与实际执行模式。环境支持 subagent 时必须为入选 persona 开启隔离 context；无法创建时明确显示降级原因，设置 `responses_meta.blinding.level=procedural` 并降低置信度。
 - `selection.json` 记录 `full` 或确定性 `stratified-pilot`；用户只决定 n，不手工挑 persona。pilot 覆盖所有 archetype，并明确不代表完整场景覆盖。
 - `respondents.jsonl` / `responses.jsonl` 每行含可追溯 id（`respondent_id` → `archetype_id` → `question_id` 链完整）。
-- 分析报告区分"模拟数据显示的模式"、"机制推导出的解释"、"需真实用户验证的假设"。
+- 分析报告区分“模拟数据显示的模式”“机制推导出的可能解释”和“需真人确认的问题”。
 - 统计来自 `scripts/analyze.py`（确定性），非 LLM 自算。
 
 ## Commands
@@ -104,7 +103,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 - **前几个 persona 主导结论**：LLM 分析时易用前几类人下结论。强制 Cross-Interview Sampling——每条观察贴 source id、验证每人至少出现一次、单源标记。
 - **看完 persona 后手工挑人**：会把用户预期带入样本选择。用户只能选择 `full` 或指定 pilot n，具体 id 由 `select_respondents.py` 分层选择并记录 seed。
 - **LLM 自算统计**：60 行算术易错。统计必须走 `scripts/analyze.py`，LLM 只做主题编码与判断。
-- **预注册假设泄漏**：把预测方向传给 WF3 / WF4 会让模拟退化为自证循环。`hypotheses.json` 封存到 WF5，模拟不读取、不纠偏。
+- **答案方向泄漏**：把预期高低、排序或逐题答案写进 archetype、persona 或机制文件，会让模拟退化为照表作答。上游只提供原因与可观察事实，不提供结果方向。
 - **合成样本当真人证据**：合成样本对真实人群代表性固有局限。报告必须声明仅供预调研、不替代真实研究。
 
 ## References

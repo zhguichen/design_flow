@@ -4,6 +4,15 @@
 
 ## Changelog
 
+### 2026-07-03 — 删除 hypotheses.json 数据流
+
+- WF2 Phase C 不再生成 `hypotheses.json`；只输出任务情境、可观察 drivers 和题目覆盖，不生成逐题预测、结果方向、答案阈值或排序规则。
+- WF3/WF4 删除封存文件隔离逻辑；subagent 隔离改为防止跨 persona 相互影响和任务摩擦规则泄漏。
+- WF5 删除假设对照章节，报告改为区分模拟模式、可能解释和需真人确认的问题；统计脚本不受影响。
+- `validate_run.py` 删除假设文件合同、`hypotheses_loaded` 元数据和报告章节要求，同时继续拒绝 persona / response 中的预测方向字段。
+- 根 Skill、pipeline、references、README、AGENTS、PRD、RFC、测试、修改说明和两份指南同步收敛；plugin 版本递增为 `0.1.4`。
+- 经验教训：没有参与统计计算、只能由同一模型在报告中手工对照的中间产物，不应成为强制主链合同。预调研应聚焦问卷压力测试与场景诊断。
+
 ### 2026-07-03 — WF1 只保留 pre-research
 
 - 删除 `hypothesis-validation` 用途选项，`survey.purpose` 固定为 `pre-research`；合成场景只能做方向判断、问卷预检和预测预演。

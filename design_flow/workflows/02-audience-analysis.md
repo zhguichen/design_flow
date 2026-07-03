@@ -4,7 +4,7 @@
 
 - Phase A 人群反推：输出 `archetypes.json`
 - Phase B 行为机制映射：输出 `behavior_mechanisms.json`
-- Phase C 任务情境映射：输出 `task_frictions.json` 与封存的 `hypotheses.json`
+- Phase C 任务情境映射：输出 `task_frictions.json`
 
 三个 Phase 共用一个 workflow 文件。内部验收通过时自动推进；任一 Phase 触发 Stop 条件才回退。Phase C 完成后通过 audience package 门禁一次性展示全部产出并确认最终 `simulation_n`。
 
@@ -168,7 +168,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 
 不要写分数、top friction、答案阈值或排序规则。`question_context_coverage` 只说明一道任务型题需要哪些维度和 persona 输入。
 
-强弱排序与 archetype 间的预测差异只写入 `hypotheses.json`。该文件必须在模拟前设为 `status=sealed`；WF3/WF4 不读取，不把 `predicted_pattern` 同义改写到 persona，结果不符合预测时也不重生成。
+不要生成 archetype 间的强弱排序、逐题预测差异、答案阈值或结果方向。Phase C 只记录可观察 drivers 和题目需要覆盖的情境，具体答案由 WF4 根据 persona 独立生成。
 
 ### 输出合同
 
@@ -180,8 +180,6 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 - `question_context_coverage`
 - 合成样本边界 `note`
 
-`hypotheses.json` 包含 `created_before_simulation=true`、`status=sealed`，以及每条假设的目标题、比较对象、预测、依据、替代解释、证伪规则和置信度。完整示例按需读取 `references/output-examples.md`。
-
 ### 完成前确认
 
 先运行：
@@ -190,7 +188,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stage wf2c
 ```
 
-再判断 drivers 是否可观察、情境覆盖是否充分、预测是否可证伪。
+再判断 drivers 是否可观察、情境覆盖是否充分，以及是否混入答案方向。
 
 通过后展示完整 audience package：全部原型、机制、任务情境、三阶段验收结果，以及 archetype 数、基础覆盖量、用户此前预算偏好和建议 `simulation_n`。用户只在这里确认一次最终规模；确认后更新 `simulation_plan`。
 
@@ -205,8 +203,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_run.py" runs/<时间戳>/ --stag
 - Phase A 原型只是候选，Phase B 可以要求回退、合并或删除。
 - `model-inference` 不得升级为 `supported`。
 - 结果变量不作背景；场景权重不解释为现实比例。
-- `hypotheses.json` 在 WF5 前保持封存。
+- 不生成逐题预测、结果方向或答案规则。
 
 ## 下一步
 
-确认 audience package 后进入 `workflows/03-persona-generation.md`。WF3 读取 `archetypes.json`、`behavior_mechanisms.json`、`task_frictions.json`，不得读取 `hypotheses.json`。
+确认 audience package 后进入 `workflows/03-persona-generation.md`。WF3 读取 `archetypes.json`、`behavior_mechanisms.json` 与 `task_frictions.json`。

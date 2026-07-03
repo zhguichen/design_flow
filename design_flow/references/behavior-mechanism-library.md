@@ -8,7 +8,7 @@ Include a group only when this chain is coherent:
 
 `target context -> actor condition -> constraint/resource -> mechanism -> surface need -> hypothesized latent motive`
 
-Exclude combinations that are merely possible but lack a mechanism, contradict the target population, duplicate another group, or do not affect the questionnaire scope. Selecting a card is `model-inference`, not target-context evidence. Do not write predicted answer directions into `behavior_mechanisms.json`; preregister them separately in sealed `hypotheses.json`.
+Exclude combinations that are merely possible but lack a mechanism, contradict the target population, duplicate another group, or do not affect the questionnaire scope. Selecting a card is `model-inference`, not target-context evidence. Do not write predicted answer directions, scores, rankings, or answer rules into `behavior_mechanisms.json`.
 
 ## Evidence Rule
 

@@ -268,17 +268,6 @@ class Validator:
         missing = task_qids - set(coverage)
         if missing:
             self.error(f"question_context_coverage missing task questions: {sorted(missing)}")
-        hypotheses = self.json_file("hypotheses.json")
-        if not isinstance(hypotheses, dict):
-            return
-        self.require_keys(hypotheses, ("created_before_simulation", "status", "note", "hypotheses"), "hypotheses.json")
-        if hypotheses.get("created_before_simulation") is not True or hypotheses.get("status") != "sealed":
-            self.error("hypotheses.json must be created_before_simulation=true and status=sealed")
-        items = hypotheses.get("hypotheses", [])
-        self.unique([item.get("hypothesis_id") for item in items], "hypotheses")
-        for item in items:
-            self.require_keys(item, ("hypothesis_id", "target_questions", "predicted_pattern", "basis", "alternative_explanation", "falsification_rule", "confidence"), f"hypothesis {item.get('hypothesis_id')}")
-
     def wf3(self):
         _, archetypes = self.archetype_context()
         _, mechanisms = self.mechanism_context()
@@ -288,7 +277,7 @@ class Validator:
             return
         ids = [row.get("respondent_id") for row in data]
         self.unique(ids, "respondents")
-        forbidden = {"task_friction_profile", "score", "scores", "top_friction", "top_friction_dimensions", "answer_implications", "likely_pain_answer_pattern", "predicted_pattern", "hypothesis_id"}
+        forbidden = {"task_friction_profile", "score", "scores", "top_friction", "top_friction_dimensions", "answer_implications", "likely_pain_answer_pattern", "predicted_pattern"}
         by_arch = defaultdict(list)
         for row in data:
             rid = row.get("respondent_id")
@@ -377,7 +366,6 @@ class Validator:
         if set(response_ids) != set(selected_ids):
             self.error("responses must correspond one-to-one with selection.json")
         forbidden = {
-            "hypothesis_id",
             "predicted_pattern",
             "task_friction_profile",
             "score",
@@ -421,8 +409,8 @@ class Validator:
             if meta_selection.get(key) != selection.get(key):
                 self.error(f"responses_meta.selection.{key} must match selection.json")
         blinding = meta.get("blinding", {})
-        if blinding.get("hypotheses_loaded") is not False or blinding.get("task_frictions_loaded") is not False:
-            self.error("responses_meta.blinding must record hypotheses/task_frictions as not loaded")
+        if blinding.get("task_frictions_loaded") is not False:
+            self.error("responses_meta.blinding must record task_frictions as not loaded")
         if blinding.get("level") == "procedural" and meta.get("quality", {}).get("overall") == "high":
             self.error("procedural blinding cannot have high overall quality")
         if mode == "stratified-pilot" and meta.get("quality", {}).get("overall") == "high":
@@ -443,7 +431,7 @@ class Validator:
             self.error(f"missing required file: {report_path}")
             return
         text = report_path.read_text(encoding="utf-8")
-        for marker in ("合成样本", "仅供预调研", "这批人整体怎么想", "我们当初的猜测对不对", "这份报告能信多少"):
+        for marker in ("合成样本", "仅供预调研", "这批人整体怎么想", "这对设计意味着什么", "这份报告能信多少"):
             if marker not in text:
                 self.error(f"report.md missing required marker: {marker}")
         if isinstance(selection, dict) and selection.get("mode") == "stratified-pilot":
