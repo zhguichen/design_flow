@@ -1,22 +1,25 @@
 ---
-description: 跑完整合成样本问卷 pipeline——问卷设计→人群反推→行为机制映射→任务摩擦映射→persona 生成→模拟作答→结果分析。步间暂停确认。
+description: 跑完整合成样本问卷 pipeline——问卷设计→人群反推→行为机制映射→任务摩擦映射→persona 生成→模拟作答→结果分析。使用三道确认门。
 argument-hint: [研究问题，如"设计学生是否愿用 AI 合成样本工具做预调研"]
 ---
 
-跑完整合成样本问卷 pipeline，串联 1→2→2.5→2.6→3→4→5。**步间暂停确认**：每步产出后**完整展示该步产出**（问卷全部题目 / 全部原型 / 全部机制 / 全部摩擦维度与打分 / 全部 persona 摘要 / 全部作答摘要，不是"举 2-3 个例子"式的摘要），再展示验收结果，问"继续下一步?"再进；早期错误（烂问卷 / 烂原型）能在当步拦下，不污染下游。受访者数量较大（如 persona / 作答超过 20 条）时，全量展示会太长，可展示前几条 + 每个 archetype 至少 1 条完整示例 + 完整 `by_archetype` 统计表，但要明确说明"其余 N 条见 `runs/<时间戳>/xxx.jsonl`"，不能只字不提就默默略过。
+跑完整合成样本问卷 pipeline，串联 1→2A→2B→2C→3→4→5。只设置三道用户确认门：问卷、完整 audience package + 模拟规模、persona 抽样。每道门先完整展示自上次确认以来的产出和验收结果，再询问是否继续；内部 Phase 验收通过时自动推进，触发 Stop 条件才停下追问。
+
+受访者数量较大（persona 超过 20 条）时，可展示前几条 + 每个 archetype 至少 1 条完整示例 + 完整 `by_archetype` 统计表，但要明确说明“其余 N 条见 `runs/<时间戳>/xxx.jsonl`”。WF4 作答和 WF5 分析在第三道门确认后连续运行；最终交付完整统计与报告，不在两者之间增加形式化确认。
 
 步骤：
 
-1. 用 `workflows/01-survey-design.md` 设计问卷 → `runs/<时间戳>/survey.json`。验收通过后问："继续 WF2 人群分析？"
+1. 用 `workflows/01-survey-design.md` 设计问卷 → `runs/<时间戳>/survey.json`。**门 1：问卷确认**。展示全部题目和验收结果后问：“确认问卷并进入人群分析吗？”
 2. 用 `workflows/02-audience-analysis.md` 完成三个 Phase：
-   - **Phase A**：反推待机制校验的人群原型 → `runs/<时间戳>/archetypes.json`。Phase A 验收通过后问："继续 Phase B 行为机制映射？"
-   - **Phase B**：读取 `references/behavior-mechanism-library.md`，把原型整理为证据分级、存在替代解释且可证伪的机制假设 → `runs/<时间戳>/behavior_mechanisms.json`。Phase B 验收通过后问："继续 Phase C 任务摩擦映射？"
-   - **Phase C**：读取 `references/task-friction-framework.md`，说明痛点/麻烦环节/功能优先级如何推导 → `runs/<时间戳>/task_frictions.json`；同时预注册并封存 `runs/<时间戳>/hypotheses.json`。Phase C 验收通过后问："继续 WF3 生成 persona？"
-3. 用 `workflows/03-persona-generation.md` 生成带 `mechanism_trace` 与 `task_friction_profile` 的 persona → `runs/<时间戳>/respondents.jsonl` + `respondents_meta.json`。本步不得读取 `hypotheses.json`。验收通过后问："继续 WF4 模拟作答？"
-4. 用 `workflows/04-response-simulation.md` 盲模拟作答 → `runs/<时间戳>/responses.jsonl` + `responses_meta.json`。优先在只接收 allowlist 输入的新隔离 context / subagent 中运行；无法隔离时标记 `blinding.level=procedural` 并降级置信度。本步不得读取 `hypotheses.json`，也不得因结果不符合预期而重生成。验收通过后问："继续 WF5 结果分析？"
+   - **Phase A**：反推待机制校验的人群原型 → `runs/<时间戳>/archetypes.json`。验收通过后自动进入 Phase B。
+   - **Phase B**：读取 `references/behavior-mechanism-library.md`，把原型整理为证据分级、存在替代解释且可证伪的机制假设 → `runs/<时间戳>/behavior_mechanisms.json`。验收通过后自动进入 Phase C。
+   - **Phase C**：读取 `references/task-friction-framework.md`，整理任务情境与 drivers → `runs/<时间戳>/task_frictions.json`；同时预注册并封存 `runs/<时间戳>/hypotheses.json`。
+   - **门 2：audience package + 模拟规模确认**。完整展示全部原型、机制、任务情境与验收结果；说明基础覆盖量、用户此前预算偏好和最终建议 `simulation_n`，一次确认后更新 `simulation_plan` 并进入 WF3。
+3. 用 `workflows/03-persona-generation.md` 生成带 `mechanism_trace` 的 persona，并把任务情境 drivers 转写成五层中的可观察事实 → `runs/<时间戳>/respondents.jsonl` + `respondents_meta.json`。respondent 不含摩擦分数、top friction 或答案规则；本步不得读取 `hypotheses.json`。**门 3：persona 抽样确认**。展示前几条、每个 archetype 至少 1 条和完整分配统计，确认后开始模拟。
+4. 用 `workflows/04-response-simulation.md` 盲模拟作答 → `runs/<时间戳>/responses.jsonl` + `responses_meta.json`。优先在只接收 allowlist 输入的新隔离 context / subagent 中运行；无法隔离时标记 `blinding.level=procedural` 并降级置信度。本步不得读取 `hypotheses.json`，也不得因结果不符合预期而重生成。验收通过后自动进入 WF5。
 5. 用 `workflows/05-result-analysis.md` 分析：先 `python3 scripts/analyze.py runs/<时间戳>/` 生成 `stats.json`，再首次读取封存的 `hypotheses.json`，逐条对照后写 `report.md`。
 
-每步满足该 workflow 的验收标准（可机械检查）再进下一步。任一步触发 Stop 条件则停下追问，不臆造。所有产出标注 合成样本 / 仅供预调研。
+每步满足该 workflow 的验收标准（可机械检查）再进下一步。只有三道确认门或 Stop 条件会中断；其余阶段自动推进。所有产出标注 合成样本 / 仅供预调研。
 
 完成后建议（任选其一）：
 

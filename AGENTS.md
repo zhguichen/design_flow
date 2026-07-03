@@ -8,7 +8,7 @@
 
 **边界：预调研工具，不替代真实用户研究。** 它替代的是低质量、随便发、没人认真填的学生式问卷调研，而不是专业研究中的真实样本采集。
 
-形态：单一根 Skill（`SKILL.md`，harness 只发现这一个入口）+ 按需加载的 7 个 workflow 子文件 + 编排命令 + 参考资料夹。这是"root + sub-skills"模式，不是多个独立注册 skill。
+形态：单一根 Skill（`SKILL.md`，harness 只发现这一个入口）+ 5 个按需加载的 workflow 文件（其中 WF2 含 A/B/C 三个 Phase，共 7 个执行阶段）+ 编排命令 + 参考资料夹。这是"root + sub-skills"模式，不是多个独立注册 skill。
 
 ## 目录结构
 
@@ -19,16 +19,14 @@ design-flow/                        ← Git 仓库根目录
 ├── CLAUDE.md                       ← 项目指令：Agent 入口
 ├── design_flow/                    ← Skill 包（可独立分发/安装到 .claude/skills/）
 │   ├── SKILL.md                    ← 根 skill：给使用 Agent 看的操作合同（主产出）
-│   ├── workflows/                  ← 按需加载的 7 个子文件
+│   ├── workflows/                  ← 5 个文件，共 7 个执行阶段
 │   │   ├── 01-survey-design.md
-│   │   ├── 02-audience-inference.md
-│   │   ├── 025-behavior-mechanism-mapping.md
-│   │   ├── 026-task-friction-mapping.md
+│   │   ├── 02-audience-analysis.md ← Phase A 人群反推 / B 行为机制 / C 任务情境
 │   │   ├── 03-persona-generation.md
 │   │   ├── 04-response-simulation.md
 │   │   └── 05-result-analysis.md
 │   ├── commands/
-│   │   └── run-pipeline.md         ← 串联 1→2→2.5→2.6→3→4→5 的编排命令
+│   │   └── run-pipeline.md         ← 串联 1→2A→2B→2C→3→4→5 的编排命令
 │   ├── references/                 ← 方法论沉淀，按需引用
 │   └── scripts/                    ← 仅放必须确定性执行的部分（机会性，按需创建）
 ├── docs/                           ← 项目文档
@@ -58,7 +56,7 @@ design-flow/                        ← Git 仓库根目录
 
 ## 环境
 
-- Skill 主体是纯 Markdown，LLM 驱动。`scripts/analyze.py` 为 Workflow 5 提供确定性统计（python3 标准库，无外部依赖），是路线图"workflow 真需要确定性计算时引入 scripts"逃生条款的首次落地。
+- Skill 主体是 Markdown，LLM 驱动。`scripts/validate_run.py` 统一各阶段的结构与跨文件契约校验，`scripts/analyze.py` 为 Workflow 5 提供确定性统计；两者均只用 python3 标准库。
 - 确定性计算（如统计）若需引入，遵循"使用 3 次以上才提取为 `scripts/`"原则。
 
 ## Git 约定

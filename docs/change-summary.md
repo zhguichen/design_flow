@@ -10,7 +10,7 @@
 
 核心目的：让模拟受访者不只是“看起来像人”，而是把“什么机制可能解释这个场景”“为什么他会觉得某个环节麻烦”“哪些解释仍需真人证伪”写清楚。
 
-> 2026-07-02 后续修正：预测答案不再写入 archetype、mechanism 或 persona。WF2.6 将可检验预测单独封存在 `hypotheses.json`；WF3 / WF4 不读取，WF5 才对照，避免模拟结果回放上游预设。
+> 2026-07-02 后续修正：预测答案不再写入 archetype、mechanism 或 persona。WF2 Phase C 将可检验预测单独封存在 `hypotheses.json`；WF3 / WF4 不读取，WF5 才对照，避免模拟结果回放上游预设。
 
 ## 为什么要改
 
@@ -20,12 +20,12 @@
 
 所以这次新增两层：
 
-- **WF2.5 行为机制映射**：把候选场景整理成证据分级、存在替代解释且可证伪的机制假设，不证明某类人真实存在。
-- **WF2.6 任务摩擦映射**：说明某类人在具体任务里为什么会产生某些痛点和选择。
+- **WF2 Phase B 行为机制映射**：把候选场景整理成证据分级、存在替代解释且可证伪的机制假设，不证明某类人真实存在。
+- **WF2 Phase C 任务摩擦映射**：说明某类人在具体任务里为什么会产生某些痛点和选择。
 
 ## 改了什么
 
-### 1. 流程从 5 步变成 7 步
+### 1. 流程从 5 个阶段扩展为 5 个文件、7 个执行阶段
 
 旧流程：
 
@@ -41,9 +41,9 @@ WF5 结果分析
 
 ```text
 WF1 问卷设计
-WF2 人群反推
-WF2.5 行为机制映射
-WF2.6 任务摩擦映射
+WF2 Phase A 人群反推
+WF2 Phase B 行为机制映射
+WF2 Phase C 任务摩擦映射
 WF3 persona 生成
 WF4 模拟作答
 WF5 结果分析
@@ -59,18 +59,15 @@ WF5 结果分析
 
 ### 3. WF2 不再直接生成最终 persona
 
-`workflows/02-audience-inference.md` 现在只生成“待机制校验的人群原型”，并新增 `候选机制线索`。
+`workflows/02-audience-analysis.md` 的 Phase A 只生成“待机制校验的人群原型”，并新增 `候选机制线索`。
 
-意思是：WF2 只说“可能有这几类人”，但这几类人还不能直接进入模拟作答。必须经过 WF2.5 检查：这类人是否有现实处境和连贯的行为机制。WF2 不再写预期回答方向。
+意思是：WF2 Phase A 只说“可能有这几类人”，但这几类人还不能直接进入模拟作答。必须经过 Phase B 检查：这类人是否有现实处境和连贯的行为机制。Phase A 不写预期回答方向。
 
-### 4. 新增 WF2.5：行为机制映射
+### 4. 新增 WF2 Phase B：行为机制映射
 
-新增文件：
+对应 `workflows/02-audience-analysis.md` 的 Phase B，并按需读取 `references/behavior-mechanism-library.md`。
 
-- `workflows/025-behavior-mechanism-mapping.md`
-- `references/behavior-mechanism-library.md`
-
-WF2.5 要输出 `behavior_mechanisms.json`，用这样的链路解释人群：
+Phase B 要输出 `behavior_mechanisms.json`，用这样的链路解释人群：
 
 ```text
 环境/事件 → 社会处境 → 资源/能力限制 → 行为机制 → 表层需求 → 假设性潜在动机
@@ -89,49 +86,47 @@ deadline 压力 + 找不到真实受访者 + 方法能力有限
 
 这样做的目的，是让模拟人“有逻辑地存在”，而不是人口统计标签拼出来。
 
-### 5. 新增 WF2.6：任务摩擦映射
+### 5. 新增 WF2 Phase C：任务摩擦映射
 
-新增文件：
+对应 `workflows/02-audience-analysis.md` 的 Phase C，并按需读取 `references/task-friction-framework.md`。
 
-- `workflows/026-task-friction-mapping.md`
-- `references/task-friction-framework.md`
-
-WF2.6 要输出 `task_frictions.json`，用这样的链路解释痛点：
+Phase C 要输出 `task_frictions.json`，用这样的链路解释痛点：
 
 ```text
 任务场景 → 当前行为 → 环境限制 → 资源/能力 → 行为机制 → 摩擦维度 → 可能痛点答案
 ```
 
-例如厨房机器人调研里，不能说“谨慎型用户更担心安全”。要写成：
+例如厨房机器人调研里，不能说“谨慎型用户更担心安全”，也不能把“安全摩擦=5”直接交给作答模型。要先整理成可观察事实：
 
 ```text
 家里有孩子 + 经常做饭 + 热油/刀具/火源风险 + 照护责任
-→ 安全风险摩擦高
-→ 更可能担心机器人误操作、烫伤、切割风险
+→ 与安全风险摩擦相关
 ```
 
-这样做的目的，是让“哪个环节更麻烦”这类个性化答案有任务依据。
+这些事实由 WF3 写进 persona；具体答案由 WF4 独立生成，预测方向只保存在封存的 `hypotheses.json`。
 
 ### 6. WF3 persona 增加可追溯字段
 
-`workflows/03-persona-generation.md` 现在要求每个模拟受访者除了五层信息，还必须有：
+`workflows/03-persona-generation.md` 现在要求每个模拟受访者具备五层信息和：
 
-- `mechanism_trace`：追溯到 WF2.5 的行为机制。
-- `task_friction_profile`：追溯到 WF2.6 的任务摩擦。
+- `mechanism_trace`：追溯到 WF2 Phase B 的行为机制。
+- 由 WF2 Phase C drivers 转写出的具体经历、资源、能力和环境限制。
 
 也就是说，一个模拟人不能只写“设计专业、大三、谨慎、预算低”。他还必须说明：
 
 - 他继承了哪些机制。
-- 他的表层需求和假设性潜在动机是什么，以及这项推断的证据等级。
-- 哪些任务摩擦最强。
-- 这些摩擦会影响哪些题目。
+- 机制定义中的表层需求、假设性潜在动机和证据等级由 `mechanism_ids` 联结，不在每个 persona 中重复复制。
+- 他实际经历过哪些任务情境和限制。
+
+persona 不携带摩擦分数、top friction 或答案规则，避免把预测方向泄漏给 WF4。
 
 ### 7. WF4 作答不能从性格直接猜
 
 `workflows/04-response-simulation.md` 现在要求：
 
 - 关键题理由要追溯到 `mechanism_trace`。
-- 痛点题、排序题、功能优先级题、开放题要追溯到 `task_friction_profile`。
+- 痛点题、排序题、功能优先级题、开放题要从 persona 的具体处境和经历独立推导。
+- 不读取 `task_frictions.json`，不执行摩擦分数查表。
 - 不模拟瞎填、反填、恶意乱选。
 - 可以有有限理性和不确定性，但不是无效作答。
 
@@ -160,28 +155,25 @@ WF2.6 要输出 `task_frictions.json`，用这样的链路解释痛点：
 3. `docs/change-summary.md`  
    也就是本文，看本轮修改的原因和重点。
 
-4. `workflows/025-behavior-mechanism-mapping.md`  
-   看“如何把候选场景整理成可证伪机制假设”的规则。
+4. `workflows/02-audience-analysis.md`
+   依次看 Phase A 人群反推、Phase B 可证伪机制假设、Phase C 任务情境映射。
 
-5. `workflows/026-task-friction-mapping.md`  
-   看“为什么他会觉得某个环节麻烦”的规则。
-
-6. `references/behavior-mechanism-library.md`  
+5. `references/behavior-mechanism-library.md`
    看可调用的人文社科/心理学机制模板。
 
-7. `references/task-friction-framework.md`  
-   看任务摩擦维度和评分规则。
+6. `references/task-friction-framework.md`
+   看任务摩擦维度、可观察 drivers 和情境覆盖规则。
 
-8. `workflows/03-persona-generation.md`、`workflows/04-response-simulation.md`、`workflows/05-result-analysis.md`  
+7. `workflows/03-persona-generation.md`、`workflows/04-response-simulation.md`、`workflows/05-result-analysis.md`
    看机制和摩擦如何进入 persona、作答和分析。
 
 ## 本轮改动解决了什么问题
 
 | 原问题 | 本轮解决方式 |
 |---|---|
-| 模拟人看起来像 AI 编的 | 用 WF2.5 要求每类人必须有行为机制链 |
+| 模拟人看起来像 AI 编的 | 用 WF2 Phase B 要求每类人必须有行为机制链 |
 | 不知道模拟人依据是什么 | 每个 persona 增加 `mechanism_trace` |
-| 痛点题太个性化，不能靠性格猜 | 用 WF2.6 建立任务摩擦维度和评分 |
+| 痛点题太个性化，不能靠性格猜 | 用 WF2 Phase C 建立任务情境维度和可观察 drivers |
 | 问卷不只问技术接受 | 行为机制库按技术、产品、空间、视觉、服务、公共设计、生活方式等领域路由 |
 | 所有可能性都塞进去会冲淡结果 | 只保留有机制支撑、会影响回答、现实自洽的类型 |
 | 分析结果容易被误当真实证据 | WF5 强制标注合成样本，并区分模拟模式、机制解释、待验证假设 |
@@ -212,15 +204,15 @@ WF2.6 要输出 `task_frictions.json`，用这样的链路解释痛点：
 
 - `behavior_mechanisms.json` 是否能解释每类人为什么存在。
 - `task_frictions.json` 是否能解释每类人的痛点和优先级。
-- `respondents.jsonl` 每个受访者是否有 `mechanism_trace` 和 `task_friction_profile`。
-- `responses.jsonl` 的痛点题答案是否能追溯到任务摩擦，而不是从性格直接猜。
+- `respondents.jsonl` 每个受访者是否有 `mechanism_trace`，并把任务 drivers 写成了可观察事实。
+- `responses.jsonl` 的痛点题答案是否能追溯到 persona 的具体经历，而不是从性格直接猜或从分数查表。
 - `report.md` 是否区分模拟数据、机制解释、待真人验证假设。
 
 ## 队友讨论时可以重点看这几个问题
 
-1. WF2.5 是否明确标出证据等级、替代解释和证伪条件，而没有声称“这类人已被证明存在”？
-2. WF2.6 的任务摩擦是否能覆盖不同设计方向，而不只适合厨房机器人或技术产品？
-3. persona 的 `mechanism_trace` 和 `task_friction_profile` 是否会让模拟作答更可信？
+1. WF2 Phase B 是否明确标出证据等级、替代解释和证伪条件，而没有声称“这类人已被证明存在”？
+2. WF2 Phase C 的任务摩擦是否能覆盖不同设计方向，而不只适合厨房机器人或技术产品？
+3. persona 的 `mechanism_trace` 和事实化任务情境是否足以支持独立模拟作答，又没有泄漏预测方向？
 4. 现在的边界声明是否足够明确：这是预调研工具，不替代真实用户研究？
 5. 后续是否要补真实数据集、文献依据库或领域模板？
 

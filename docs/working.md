@@ -4,6 +4,49 @@
 
 ## Changelog
 
+### 2026-07-03 — 下沉长示例并精简 WF2
+
+- 将 482 行的 `02-audience-analysis.md` 重写为约 200 行的三阶段操作合同，保留方法、输入输出职责、机械校验、Stop 条件和红线，删除三个重复展开的完整 JSON 样例。
+- WF1 删除两个完整领域案例；新增按需加载的 `references/output-examples.md`，集中提供 survey、audience package、respondent 和 response 的虚构合成片段。
+- 根 Skill 明确只有在需要格式澄清时才加载示例 reference，正常执行不预加载。
+- 经验教训：workflow 应说明如何决策，完整样例应按需加载。把字段合同、验收清单和同一案例同时放在主流程里，会让真正的操作规则被样例淹没。
+
+### 2026-07-03 — 规范化 persona 与 response 的机制字段
+
+- `behavior_mechanisms.json` 成为表层需求、假设性潜在动机、需求标签和证据等级的唯一来源。
+- respondent 的 `mechanism_trace` 只保留 `mechanism_ids` 与个体化的 `individual_expression`；WF4 运行时联结完整机制。
+- answer 只保留 `reasoning`、可选 `mechanism_id` 和 `uncertain`，不再逐题复制表层需求与潜在动机；WF5 按 id 联结解释。
+- 经验教训：为隔离 context 方便而把上游定义复制到每一行，会放大 token 成本并制造版本漂移。应存引用和个体差异，在执行边界动态物化所需上下文。
+
+### 2026-07-03 — 统一机械验收来源
+
+- 新增 `scripts/validate_run.py`，用 `--stage wf1|wf2a|wf2b|wf2c|wf3|wf4|wf5|all` 检查 JSON/JSONL、id、强类型、禁止字段和跨文件引用。
+- 各 workflow 的“完成前确认”改为先调用校验器，再保留题序、机制合理性、persona 自然度等无法可靠自动判断的质量判断。
+- `docs/test.md` 删除逐字段复述，改为阶段命令与人工判断表；根 Skill 只保留跨阶段 Quality Gate。
+- 经验教训：同一字段契约同时写在根 Skill、workflow 和测试文档里会必然漂移。机械规则应由脚本执行，说明文档只描述职责和不可机械化的判断。
+
+### 2026-07-03 — 合并模拟规模询问并收敛为三道确认门
+
+- WF1 不再因缺少 `simulation_n` 单独追问；只记录用户已主动提供的预算偏好，否则填 `null` 交给 WF2。
+- WF2 Phase A 计算 proposed plan 但不打断；Phase C 完成后结合 archetype 数、基础覆盖量和预算偏好，只确认一次最终 `simulation_n`。
+- run-pipeline 从每个阶段暂停改为三道确认门：问卷、完整 audience package + 模拟规模、persona 抽样。Phase A/B/C 内部自动推进，WF4 验收后自动进入 WF5。
+- 经验教训：确认应该对应真正需要用户判断的决策，而不是对应文件数量。过密确认会把内部实现结构暴露给用户，也会重复询问在早期阶段尚无依据的问题。
+
+### 2026-07-03 — 统一为 5 个 workflow 文件、7 个执行阶段
+
+- 全仓统一使用 `1→2A→2B→2C→3→4→5`：WF2 Phase A 人群反推、Phase B 行为机制映射、Phase C 任务情境映射。
+- `AGENTS.md` 目录树改为实际存在的 5 个 workflow 文件，删除已不存在的 `02-audience-inference.md`、`025-*`、`026-*` 路径。
+- 根 Skill、README、pipeline、PRD、RFC、references、测试契约和队友说明统一使用“5 个文件、7 个执行阶段”，不再把执行阶段误写成 7 个文件。
+- 经验教训：文件拓扑和执行阶段是两件事。把二者都叫 workflow 会让路由、文件路径和验收编号逐渐漂移；维护文档应同时明确物理文件数与逻辑阶段数。
+
+### 2026-07-03 — 统一方案 A：任务情境事实化后盲作答
+
+- WF2 Phase C 不再生成 1-5 摩擦分数、top friction 或分数到答案的 `question_friction_rules`；改为 `question_context_coverage`，只记录相关维度、可观察 drivers、机制追溯和 persona 所需情境输入。
+- WF3 不再把 `task_friction_profile` 复制进 respondent；改为将 drivers 转写进五层人物故事中的具体经历、资源、能力和环境限制，同时禁止同义改写封存预测。
+- WF4 保持方案 A，只接收五层 persona、`mechanism_trace`、所属机制和问卷，不读取 `task_frictions.json` 或 `hypotheses.json`，不执行查表。
+- 同步更新根 Skill、pipeline、任务摩擦 reference、PRD、RFC、验收清单和队友说明。
+- 经验教训：只在 WF4 里声明“不读摩擦分数”不够；如果 WF2/WF3 仍生产并复制分数、top friction 和答案规则，数据流仍然含有死字段和预测泄漏。盲模拟需要从产出契约上切断方向性字段，而不是只靠最后一步自律。
+
 ### 2026-07-03 — 步间完整展示产出 + 主动问模拟规模
 
 - `commands/run-pipeline.md`：步间暂停确认从"展示验收结果"改为"完整展示该步产出（先全量，再验收结果）"，量大时（persona/作答超 20 条）允许"前几条 + 每 archetype 至少 1 条 + 完整统计表 + 注明其余见文件"的降级展示，但必须显式声明，不能默默略过。
@@ -132,7 +175,7 @@
 
 - 填 `docs/prd.md`（Summary / Problem / Target Users / Success Criteria / Non-Goals / Boundary）、`docs/rfc.md`（6 设计原则 + 架构 + 6 Trade-Offs + Future）、`docs/test.md`（analyze.py 验证 + 每步验收清单 + 6 QA 场景 + 回归 + 隐私扫描命令）。
 - 重写 `README.md`（安装 / 使用 / 结构 / 隐私，人读）。
-- `AGENTS.md` 补隐私扫描命令 `rg -n "op://|sk-[a-zA-Z0-9]{10,}|/Users/" .` + 自匹配说明。
+- `AGENTS.md` 补隐私扫描命令与自匹配说明。
 - 跑隐私扫描：full scan 仅 4 处自匹配（`docs/test.md` + `AGENTS.md` 的命令行与描述），filtered（排除这两文件）为空 → 无真实红线。`.gitignore` 确认覆盖 `reference-docs/`、`构建路线图.md`、`runs/`、`.env`。
 - 清理：untrack `.DS_Store`（macOS 垃圾）与 `commands/.gitkeep`（`run-pipeline.md` 已取代）；`references/.gitkeep` 保留（references/ 待填）。
 - 无 env 变量，故无 `.env.example`。

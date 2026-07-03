@@ -39,11 +39,11 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 5. result-analysis     结果分析        → runs/<ts>/stats.json + report.md
 ```
 
-每步产出物落 `runs/<时间戳>/`。步间默认暂停确认（见 Commands）。
+每步产出物落 `runs/<时间戳>/`。全链只在问卷、audience package + 模拟规模、persona 抽样三处暂停确认（见 Commands）。
 
 ## Related workflows（路由）
 
-7 个子文件按需加载，不全局暴露。按触发条件 load：
+5 个 workflow 文件按需加载，不全局暴露；WF2 内含 A/B/C 三个 Phase，因此全链共有 7 个执行阶段。按触发条件 load：
 
 | 触发 | 加载 | 产出 |
 |---|---|---|
@@ -54,7 +54,7 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 | `responses.jsonl` 就绪，需分析 | `workflows/05-result-analysis.md` | `stats.json` + `report.md` |
 
 **单步用法**：用户只要某一步（如只设计问卷），直接 load 对应 workflow，不必跑全链。
-**串联用法**：用 `/design-flow:run-pipeline` 串 1→2（A→B→C）→3→4→5（步间暂停）。
+**串联用法**：用 `/design-flow:run-pipeline` 串 1→2（A→B→C）→3→4→5（三道确认门）。
 
 每步须满足该 workflow 的验收标准（可机械检查）再进下一步；触发 Stop 条件则停下追问，不臆造。
 
@@ -66,8 +66,8 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 
 ## Prerequisites
 
-- 无外部依赖（skill 主体纯 Markdown，LLM 驱动）。
-- Workflow 5 的统计需 `python3`（标准库，无第三方包）跑 `scripts/analyze.py`。
+- 无第三方依赖（skill 主体 Markdown + Python 标准库脚本）。
+- 每阶段用 `python3 scripts/validate_run.py ... --stage <stage>` 做结构校验；Workflow 5 用 `scripts/analyze.py` 计算统计。
 - 运行时产出写 `runs/`（gitignore，不入库）。
 
 ## Quality Gate
@@ -75,10 +75,11 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 整套 skill 完成一次运行的验收：
 
 - 根 skill 是唯一入口，workflows 按需加载（不全局暴露）。
+- 每阶段先通过 `scripts/validate_run.py` 的机械校验，再执行 workflow 中保留的方法判断。
 - 每步产出文件含合成样本标注（meta.note 或报告头部）。
 - `archetypes.json` 使用带来源的 `scenario_weight` 与 `simulation_plan`；无真实依据时等权覆盖，不声称现实比例。
 - `behavior_mechanisms.json` 覆盖每个 archetype，并标注证据等级、合理性、表层需求、假设性潜在动机、替代解释和证伪条件；仅模型推断时不得标为 `supported`。
-- `task_frictions.json` 覆盖每个 archetype 和所有痛点/排序/开放/使用边界题，并标注摩擦分数、drivers、机制追溯和置信度。
+- `task_frictions.json` 覆盖每个 archetype 和所有痛点/排序/开放/使用边界题，并标注可观察 drivers、机制追溯和置信度；不生成分数到答案的查表规则。
 - `hypotheses.json` 在模拟前标记 `status=sealed`；respondents / responses 不含预测方向或 hypothesis 内容。
 - WF4 优先在隔离 context 中运行；无法隔离时 `responses_meta.blinding.level=procedural` 且置信度降级。
 - `respondents.jsonl` / `responses.jsonl` 每行含可追溯 id（`respondent_id` → `archetype_id` → `question_id` 链完整）。
@@ -87,13 +88,13 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 
 ## Commands
 
-- `/design-flow:run-pipeline [研究问题]` — 串联 1→2→2.5→2.6→3→4→5，步间暂停确认（见 `commands/run-pipeline.md`）。
+- `/design-flow:run-pipeline [研究问题]` — 串联 1→2A→2B→2C→3→4→5，在三道确认门暂停（见 `commands/run-pipeline.md`）。
 
 ## Known Pitfalls
 
 - **结果变量硬塞背景**：把满意度 / 使用意愿当 persona 背景设定 → 自证预言、数据失真。只设定影响它们的原因（经验 / 情境 / 心理 / 资源 / 能力）。
-- **把机制链当现实证据**：理论卡片只能让场景更明确、可证伪，不能证明某类人真实存在。WF2.5 必须标证据等级、替代解释和证伪条件。
-- **痛点题凭性格乱猜**：问“哪个环节更麻烦”时，不能由性格直接作答。必须先做 WF2.6，用任务摩擦模型把生活情境、行为经验、环境限制、资源能力映射到具体痛点。
+- **把机制链当现实证据**：理论卡片只能让场景更明确、可证伪，不能证明某类人真实存在。WF2 Phase B 必须标证据等级、替代解释和证伪条件。
+- **痛点题凭性格乱猜**：问“哪个环节更麻烦”时，不能只靠“谨慎型/开放型”作答。WF2 Phase C 先把生活情境、行为经验、环境限制和资源能力整理成可观察 drivers；WF3 将这些事实写进 persona 故事，WF4 再盲作答，不执行分数查表。
 - **把所有可能性都塞进样本**：会冲淡结果。只纳入机制链连贯、影响回答、场景自洽的类型；推断薄弱的类型要合并、标 `speculative` 或排除。
 - **把场景权重当现实比例**：`scenario_weight` 只分配合成变体。没有真实依据时等权覆盖；模拟百分比不得解释为目标人群发生率。
 - **前几个 persona 主导结论**：LLM 分析时易用前几类人下结论。强制 Cross-Interview Sampling——每条观察贴 source id、验证每人至少出现一次、单源标记。
@@ -103,4 +104,4 @@ description: 面向设计类学生/从业者的问卷预调研 Skill——设计
 
 ## References
 
-方法论沉淀见 `references/`（尤其 `behavior-mechanism-library.md` 与 `task-friction-framework.md`）。维护仓库见 `AGENTS.md`。
+方法论沉淀见 `references/`（尤其 `behavior-mechanism-library.md` 与 `task-friction-framework.md`）。仅在需要格式示例时加载 `references/output-examples.md`。维护仓库见 `AGENTS.md`。

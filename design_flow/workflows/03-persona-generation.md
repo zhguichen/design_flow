@@ -1,6 +1,6 @@
 # Workflow 3：Persona 生成 (persona-generation)
 
-把通过机制校验和任务摩擦校验的人群原型，按场景覆盖计划展开成具体的模拟受访者。每个受访者带五层信息结构、`mechanism_trace` 与 `task_friction_profile`，同类下的个体必须有差异——不能复制粘贴出来凑数。
+把通过机制校验和任务情境校验的人群原型，按场景覆盖计划展开成具体的模拟受访者。每个受访者带五层信息结构与 `mechanism_trace`；任务摩擦 drivers 要转写成可观察的经历、资源和环境限制，不能附带分数或预期答案。
 
 按需从根 `SKILL.md` 加载。依赖 WF2 (`02-audience-analysis.md`) 产出的 `archetypes.json`、`behavior_mechanisms.json` 与 `task_frictions.json`。
 
@@ -16,7 +16,7 @@
 
 - `runs/<时间戳>/archetypes.json`：原型 + `scenario_weight` + `weight_source` + `simulation_plan`。
 - `runs/<时间戳>/behavior_mechanisms.json`：机制的 `logic`/`need_reading`/`evidence`/`scrutiny`。
-- `runs/<时间戳>/task_frictions.json`：任务摩擦维度、分数、drivers、题目作答规则。
+- `runs/<时间戳>/task_frictions.json`：任务范围、相关维度、可观察 drivers 与题目情境覆盖。
 - `runs/<时间戳>/survey.json`：上下文（`construct_measured`、`target_population`）。
 - `simulation_n`：合成记录数，优先用 `simulation_plan.simulation_n`；用户可调整，但不能低于基础场景覆盖要求。
 
@@ -32,11 +32,11 @@
 
 不能只按年龄、专业、城市随机扩写；也不能把结果变量塞进五层当背景——那是 WF2 定的红线，这里继承。
 
-再读 `task_frictions.json` 的 `archetype_friction_map`，找出每个 archetype 的任务摩擦。个体的痛点相关字段要从这条链长出来：
+再读 `task_frictions.json` 的 `archetype_friction_map`，把 drivers 转写进五层中的具体事实。个体故事要从这条链长出来：
 
-`任务场景 → 当前行为 → 环境限制 → 资源/能力 → 行为机制 → 摩擦维度 → 可能痛点答案`
+`任务场景 → 当前行为 → 环境限制 → 资源/能力 → 行为机制`
 
-同一 archetype 下允许轻微变体（相邻摩擦维度交换、score 4/5 微调），但不能把低分摩擦写成最高痛点。
+例如，不写“F2=5”或“尺寸规划是最高痛点”，而写“曾买回尺寸不合的家具、租房不可改造、空间规划能力中低”。WF4 只看到这些事实并独立作答。`hypotheses.json` 中的预测方向不得以同义改写混入 persona。
 
 ### 按场景覆盖计划分配，权重只管额外变体投向
 
@@ -64,7 +64,7 @@
 
 - **场景覆盖分**：每个有效 archetype 至少 3 个差异化变体 → high；每类 2 个 → medium；任一类只有 1 个或缺失 → low。只评估情景覆盖，不评估总体代表性。
 - **数据质量分**：看 persona 完整度（五层齐）+ 个体差异度（同类不复制）。单源 LLM 生成本身是个局限，这一维**封顶 medium**（除非未来引入多源交叉，本 pipeline 暂无）。
-- **一致性分**：persona 背景设定、`mechanism_trace`、`task_friction_profile` 与 archetype 的因果属性不矛盾 → high；有矛盾 → low。
+- **一致性分**：persona 背景设定与 `mechanism_trace`、archetype 变量、任务情境 drivers 不矛盾 → high；有矛盾 → low。
 
 `overall` 是三者综合，`rationale` 写明理由。这个置信度反映的是**模拟质量与场景覆盖**（人像不像、答案会不会一致、每类有没有变体），**不等于研究效度或总体代表性**——增加 `simulation_n` 不会增加真实证据，必须在 `meta.note` 和 WF5 报告里显式声明。
 
@@ -75,7 +75,7 @@
 **`runs/<时间戳>/respondents.jsonl`** — 每行一个受访者：
 
 ```jsonl
-{"respondent_id":"R001","archetype_id":"A1","基础身份":{"年级":"大三","专业":"环艺","学校类型":"普通本科","城市":"二线","经济条件":"中等"},"社会处境":{"时间压力":"高","导师要求":"严格","社交资源":"少","当前任务阶段":"毕设中期"},"心理倾向":{"AI信任":"中高","焦虑程度":"中","风险偏好":"中低","认真程度":"高","从众倾向":"中"},"行为习惯":{"找资料方式":"小红书+同学","作业习惯":"临 deadline 赶","是否用AI":"是","发问卷方式":"同学互填"},"作答风格":{"认真度":"高","是否会选不确定":"是","价格敏感度":"高","是否会承认不了解":"是"},"mechanism_trace":{"mechanism_ids":["M1","M3"],"surface_need":"提高调研效率","hypothesized_latent_motive":"缓解找不到受访者导致作业失败的压力","demand_authenticity":["surface_need","contextual_need","compensatory_need"],"mechanism_evidence":{"M1":{"level":"model-inference","plausibility":"plausible"},"M3":{"level":"model-inference","plausibility":"speculative"}}},"task_friction_profile":{"top_friction_dimensions":["F1","F3"],"scores":{"F1":5,"F2":3,"F3":4},"drivers":{"F1":["deadline","真实用户渠道不足"]}}}
+{"respondent_id":"R001","archetype_id":"A1","基础身份":{"年级":"大三","专业":"环艺","学校类型":"普通本科","城市":"二线","经济条件":"中等"},"社会处境":{"时间压力":"高","导师要求":"严格","社交资源":"少","当前任务阶段":"毕设中期","调研限制":"缺少真实用户渠道"},"心理倾向":{"AI信任":"中高","焦虑程度":"中","风险偏好":"中低","认真程度":"高","从众倾向":"中"},"行为习惯":{"找资料方式":"小红书+同学","作业习惯":"临 deadline 赶","是否用AI":"是","发问卷方式":"同学互填","问卷经历":"曾因回收不足延期"},"作答风格":{"认真度":"高","是否会选不确定":"是","价格敏感度":"高","是否会承认不了解":"是"},"mechanism_trace":{"mechanism_ids":["M1","M3"],"individual_expression":"deadline 临近且缺少真实用户渠道，效率诉求与方法风险顾虑同时存在"}}
 {"respondent_id":"R002","archetype_id":"A1","基础身份":{...},...}
 ```
 
@@ -129,33 +129,22 @@
 | 字段 | 说明 |
 |---|---|
 | `mechanism_ids` | 该受访者继承的机制 id，必须存在于 `behavior_mechanisms.json` |
-| `surface_need` | 受访者会说出口的表层需求 |
-| `hypothesized_latent_motive` | 由机制推断的潜在动机假设，不是受访者事实 |
-| `demand_authenticity` | 需求真实性假设标签，继承自机制的 `need_reading.demand_authenticity` |
-| `mechanism_evidence` | 按 mechanism id 逐个继承对应机制 `evidence.level` / `evidence.plausibility`，不得升级 |
+| `individual_expression` | 该机制在此人的具体处境里如何表现；只写个体差异，不复制机制定义或预测答案 |
 
-`mechanism_trace` 不含逐题答案、结果方向或 `hypotheses.json` 内容，只提供 WF4 可追溯的因果背景。
+完整的表层需求、假设性潜在动机、需求标签和证据等级只保留在 `behavior_mechanisms.json`。WF4 按 `mechanism_ids` 动态联结相关机制，再结合 `individual_expression` 和五层故事作答；respondent 不复制这些 archetype 级内容。
 
-### task_friction_profile 字段
+### 任务情境 drivers 如何进入 persona
 
-把痛点/麻烦环节/功能优先级追溯回 `task_frictions.json`：
-
-| 字段 | 说明 |
-|---|---|
-| `top_friction_dimensions` | 该受访者最可能感到麻烦的任务摩擦维度 |
-| `scores` | 维度分数，来自 `task_frictions.json`，可做轻微个体变体 |
-| `drivers` | 推高摩擦分数的具体生活情境、行为经验、环境限制 |
-
-这也不是逐题答案，让 WF4 在回答"哪个环节更麻烦"时依据具体摩擦分数与 drivers，而不是从性格直接猜。
+`task_frictions.json` 只作为 WF3 的情境覆盖清单。把其中的 drivers 分散写入`社会处境`、`行为习惯`、`基础身份`或其他合适的五层字段，使用具体、可观察的表述。不要在 respondent 行中保留 `task_friction_profile`、摩擦分数、top friction、答案阈值或题目排序；这些内容会把预测方向泄漏给 WF4。
 
 ## 完成前确认
 
-- **id 双向可追溯**：`respondent_id` 唯一（`R001..RNNN`）；`archetype_id` 能在 `archetypes.json` 找到；`mechanism_trace.mechanism_ids` 能在 `behavior_mechanisms.json` 找到；`task_friction_profile.top_friction_dimensions` 能在 `task_frictions.json` 找到。
+先运行 `python3 scripts/validate_run.py runs/<时间戳>/ --stage wf3` 做 JSONL、id、配额、禁止字段和跨文件追溯校验，再判断：
+
 - **五层完整且不含结果变量**：社会处境/心理倾向/行为习惯/作答风格都非空（不是只有基础身份），且不含"满意度/使用意愿/推荐意愿/付费意愿"这类结果构念键。
+- **任务情境已事实化**：每个 persona 至少包含与其 archetype 相关的具体经历、资源、能力或环境限制；respondent 行不含 `task_friction_profile`、score、top friction 或答案规则。
 - **同类个体强制差异**：同 `archetype_id` 下任意两个体至少 3 维不同，不是复制粘贴。
-- **场景覆盖配额算对**：行数 = `simulation_plan.simulation_n`，`by_archetype` 合计 = 行数，每个 archetype 不少于 `variants_per_archetype`。
 - **anti-pattern 自检通过**：上面五条逐一过一遍，不过就重生成。
-- **meta 完整**：`respondents_meta.json` 含 `count`/`by_archetype`/`confidence`/`anti_pattern_checks`/`note`，`note` 含"合成样本"与"预调研"，且不把 `simulation_n` 包装成研究证据（不打 `sample_size` 分）。
 
 ## 该停下来问的情况
 
@@ -169,8 +158,8 @@
 
 ## 下一步
 
-受访者就绪后进入 `workflows/04-response-simulation.md`：LLM 以每个 persona 身份，依据 `mechanism_trace` 与 `task_friction_profile` 认真作答问卷，产出 `responses.jsonl`。
+受访者就绪后进入 `workflows/04-response-simulation.md`：LLM 以每个 persona 身份，只依据五层人物故事与 `mechanism_trace` 认真作答问卷，产出 `responses.jsonl`。
 
 ## 示例
 
-见上文"输出"段的 `respondents.jsonl` 与 `respondents_meta.json` 示例。完整 60 人见运行时产出。
+需要独立格式示例时按需读取 `references/output-examples.md`；正常执行不预加载。

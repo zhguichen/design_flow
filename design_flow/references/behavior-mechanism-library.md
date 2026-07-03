@@ -1,6 +1,6 @@
 # Behavior Mechanism Library
 
-Use this reference in WF2.5 to route from questionnaire topic to human/social behavior mechanisms. Do not treat mechanism cards as evidence that a population type exists or as proof of prevalence. They are reasoning templates that make synthetic scenarios explicit, falsifiable, and easier to calibrate with real data.
+Use this reference in WF2 Phase B to route from questionnaire topic to human/social behavior mechanisms. Do not treat mechanism cards as evidence that a population type exists or as proof of prevalence. They are reasoning templates that make synthetic scenarios explicit, falsifiable, and easier to calibrate with real data.
 
 ## Core Rule
 

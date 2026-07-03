@@ -1,6 +1,6 @@
 # Task Friction Framework
 
-Use this reference in WF2.6 when the questionnaire asks about pain points, troublesome steps, barriers, priorities, or "which part is hardest." The goal is not to guess an individual's personality. The goal is to derive task-specific friction from context, behavior, constraints, capability, and mechanism traces.
+Use this reference in WF2 Phase C when the questionnaire asks about pain points, troublesome steps, barriers, priorities, or "which part is hardest." The goal is not to guess an individual's personality. The goal is to derive task-specific friction from context, behavior, constraints, capability, and mechanism traces.
 
 ## Core Rule
 
@@ -8,9 +8,9 @@ Do not answer pain-point questions from personality alone.
 
 Use this chain:
 
-`task context -> current behavior -> environment constraint -> capability/resource -> mechanism -> friction dimension -> likely pain answer`
+`task context -> current behavior -> environment constraint -> capability/resource -> mechanism -> friction dimension`
 
-If the chain cannot be built, mark the friction as low confidence or exclude it.
+If the chain cannot be built, mark the context mapping as low confidence or exclude it. Do not append an answer direction; predicted differences belong only in sealed `hypotheses.json`.
 
 ## Friction Dimensions
 
@@ -29,48 +29,40 @@ Use domain-specific wording, but keep the underlying dimensions stable:
 | `maintenance_aftercare` | Cleaning, upkeep, repair, setup, learning overhead | complex products, hygiene, subscriptions, consumables |
 | `habit_disruption` | Requires routine change or new behavior | low frequency, strong existing alternatives, frictionful onboarding |
 
-## Scoring
+## Context Mapping
 
-Score each relevant task dimension from 1 to 5:
+For each relevant task dimension, record:
 
-- `1`: rarely a problem for this archetype
-- `2`: occasional minor friction
-- `3`: noticeable but not decisive
-- `4`: strong friction that affects answers
-- `5`: dominant friction and likely top pain point
-
-Every score must include:
-
-- `drivers`: the concrete context variables that push the score up or down
-- `mechanism_ids`: related WF2.5 mechanisms
-- `affects_questions`: question ids likely affected
+- `drivers`: concrete, observable context variables
+- `mechanism_ids`: related WF2 Phase B mechanisms
+- `affects_questions`: question ids for which the persona needs relevant context
 - `confidence`: `high`, `medium`, or `low`
+
+Do not assign 1-5 friction scores, top-friction rankings, answer thresholds, or question answer rules. Those fields encode predicted outcomes and must not enter WF3/WF4.
 
 ## Domain Examples
 
 ### Kitchen Robot
 
-- Small rental kitchen + limited counter space -> `space_environment=5`
-- Children/elderly at home + hot oil/knife/fire risk -> `risk_safety=5`
-- Enjoys cooking as craft -> `identity_control=5`, but `physical_effort` for cleaning/cutting may still be high
-- Busy dual-income household -> `time_effort=5`, `maintenance_aftercare` must stay low
-- Low cooking frequency + convenient delivery -> `habit_disruption=5`, purchase need low
+- Small rental kitchen + limited counter space -> `space_environment`
+- Children/elderly at home + hot oil/knife/fire risk -> `risk_safety`
+- Enjoys cooking as craft -> `identity_control`; cleaning/cutting experience also supplies `physical_effort` context
+- Busy dual-income household -> `time_effort` and `maintenance_aftercare`
+- Low cooking frequency + convenient delivery -> `habit_disruption`
 
 ### Design Student Survey Tool
 
-- Deadline + no respondent channels -> `time_effort=5`, `social_coordination=4`
-- Method-sensitive student -> `risk_safety=4` as method/ethics risk
-- Low research literacy -> `cognitive_load=5`
-- Low budget -> `money_loss=4`
+- Deadline + no respondent channels -> `time_effort`, `social_coordination`
+- Method-sensitive student -> `risk_safety` as method/ethics risk
+- Low research literacy -> `cognitive_load`
+- Low budget -> `money_loss`
 
 ### Public Service / Space Design
 
-- Crowded space + poor wayfinding -> `space_environment=5`, `cognitive_load=4`
-- Personal safety concerns -> `risk_safety=5`
-- Shared resources -> `social_coordination=4`
+- Crowded space + poor wayfinding -> `space_environment`, `cognitive_load`
+- Personal safety concerns -> `risk_safety`
+- Shared resources -> `social_coordination`
 
 ## Output Principle
 
-WF2.6 does not create final answers. It creates a `task_friction_profile` that WF3 embeds in respondents and WF4 uses when answering pain, ranking, priority, barrier, and open-ended questions.
-
-When a survey question asks "which part is harder/more troublesome/more important," WF4 must answer from the highest-scoring relevant friction dimensions, with small variation only when persona-specific details justify it.
+WF2 Phase C does not create final answers or a score lookup table. It creates task-context coverage that WF3 translates into observable persona facts. WF4 receives only the persona story and mechanism trace, then answers independently.
