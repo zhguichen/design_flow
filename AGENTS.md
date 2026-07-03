@@ -4,7 +4,7 @@
 
 ## 项目定位
 
-`design-flow` 是面向设计类学生 / 从业者的 Claude Code Skill，解决"找不到可信、足量、结构合理的目标受访者样本"这个痛点。它覆盖完整链路：设计问卷 → 反推人群 → 行为机制映射 → 任务摩擦映射 → 生成 persona → LLM 模拟填写 → 收集结果 → 分析。
+`design-flow` 是面向设计类学生 / 从业者的 Claude Code Skill，解决"找不到结构合理、场景覆盖充分的目标受访者样本用于预检"这个痛点。它覆盖完整链路：设计问卷 → 反推人群 → 行为机制映射 → 任务摩擦映射 → 生成 persona → LLM 模拟填写 → 收集结果 → 分析。
 
 **边界：预调研工具，不替代真实用户研究。** 它替代的是低质量、随便发、没人认真填的学生式问卷调研，而不是专业研究中的真实样本采集。
 
@@ -13,28 +13,32 @@
 ## 目录结构
 
 ```
-design-flow/
-├── README.md              ← 给安装者看
-├── AGENTS.md              ← 本文件：给维护 Agent 看
-├── SKILL.md               ← 根 skill：给使用 Agent 看的操作合同（主产出）
-├── workflows/             ← 按需加载的 7 个子文件
-│   ├── 01-survey-design.md
-│   ├── 02-audience-inference.md
-│   ├── 025-behavior-mechanism-mapping.md
-│   ├── 026-task-friction-mapping.md
-│   ├── 03-persona-generation.md
-│   ├── 04-response-simulation.md
-│   └── 05-result-analysis.md
-├── commands/
-│   └── run-pipeline.md    ← 串联 1→2→2.5→2.6→3→4→5 的编排命令
-├── references/            ← 方法论沉淀，按需引用
-├── scripts/               ← 仅放必须确定性执行的部分（机会性，按需创建）
-├── docs/
-│   ├── prd.md             ← 产品需求
-│   ├── rfc.md             ← 架构决策与权衡
-│   ├── working.md         ← 变更日志 + 经验教训（持续追加）
-│   └── test.md            ← 验收标准清单
-└── runs/                  ← 运行时产出（问卷/机制/任务摩擦/persona/答案/报告），gitignore
+design-flow/                        ← Git 仓库根目录
+├── README.md                       ← 给安装者看
+├── AGENTS.md                       ← 本文件：给维护 Agent 看
+├── CLAUDE.md                       ← 项目指令：Agent 入口
+├── design_flow/                    ← Skill 包（可独立分发/安装到 .claude/skills/）
+│   ├── SKILL.md                    ← 根 skill：给使用 Agent 看的操作合同（主产出）
+│   ├── workflows/                  ← 按需加载的 7 个子文件
+│   │   ├── 01-survey-design.md
+│   │   ├── 02-audience-inference.md
+│   │   ├── 025-behavior-mechanism-mapping.md
+│   │   ├── 026-task-friction-mapping.md
+│   │   ├── 03-persona-generation.md
+│   │   ├── 04-response-simulation.md
+│   │   └── 05-result-analysis.md
+│   ├── commands/
+│   │   └── run-pipeline.md         ← 串联 1→2→2.5→2.6→3→4→5 的编排命令
+│   ├── references/                 ← 方法论沉淀，按需引用
+│   └── scripts/                    ← 仅放必须确定性执行的部分（机会性，按需创建）
+├── docs/                           ← 项目文档
+│   ├── prd.md                      ← 产品需求
+│   ├── rfc.md                      ← 架构决策与权衡
+│   ├── working.md                  ← 变更日志 + 经验教训（持续追加）
+│   ├── test.md                     ← 验收标准清单
+│   └── change-summary.md           ← 变更摘要
+├── reference-docs/                 ← 外部参考资料（gitignore）
+└── runs/                           ← 运行时产出（问卷/机制/任务摩擦/persona/答案/报告），gitignore
 ```
 
 ## 关键约束（红线）
@@ -45,7 +49,7 @@ design-flow/
 
 ## 跨阶段红线（所有 workflow 继承）
 
-任何输出（人群画像 / 行为机制 / 任务摩擦 / 模拟数据集 / 分析报告）都必须标注：**合成样本 / 样本量 / 置信度 / 仅供预调研**。没有机制链或任务摩擦支撑的人群原型不能进入 persona 生成；痛点题不能从性格直接作答。
+任何输出（人群画像 / 行为机制 / 任务摩擦 / 模拟数据集 / 分析报告）都必须标注：**合成样本 / 合成记录数 / 场景覆盖质量 / 仅供预调研**。`simulation_n` 与 `scenario_weight` 不得解释为真实样本量、抽样精度或现实比例。行为机制只提供可检验合理性，不证明人群存在；必须标证据等级、替代解释和证伪条件，模型推断不得标为 `supported`。没有连贯机制或任务摩擦支撑的人群原型不能进入 persona 生成；痛点题不能从性格直接作答。预注册预测单独封存在 `hypotheses.json`，WF3 / WF4 禁止读取，WF5 才能对照，避免自证循环。
 
 ## 语言
 

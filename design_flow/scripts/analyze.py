@@ -173,7 +173,11 @@ def analyze(run_dir):
         "by_archetype": {str(k): v for k, v in arch_counts.items()},
         "per_question": per_question,
         "cross_tabs_by_archetype": cross_tabs,
-        "note": "deterministic stats from scripts/analyze.py; theme coding & insights by LLM",
+        "note": (
+            "deterministic stats over synthetic scenario records; counts and percentages "
+            "describe this simulation only and are not population estimates; "
+            "theme coding & insights by LLM"
+        ),
     }
 
 

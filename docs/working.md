@@ -4,6 +4,42 @@
 
 ## Changelog
 
+### 2026-07-03 — 步间完整展示产出 + 主动问模拟规模
+
+- `commands/run-pipeline.md`：步间暂停确认从"展示验收结果"改为"完整展示该步产出（先全量，再验收结果）"，量大时（persona/作答超 20 条）允许"前几条 + 每 archetype 至少 1 条 + 完整统计表 + 注明其余见文件"的降级展示，但必须显式声明，不能默默略过。
+- WF1：`simulation_n` 从"用户没指定就填 null"改为"问卷定稿前主动问打算生成多少条合成记录"，只有用户明确表示无偏好才填 `null`；新增对应 Stop 条件。
+- WF2 Phase A：原型数确定后，按"原型数 × variants_per_archetype"算出建议 `simulation_n`，主动报出并确认，不默默定稿；新增对应 Stop 条件。
+- 经验教训：默默填默认值（`null` / 建议值）会让用户以为"没得选"，其实这两个数字直接决定下游生成成本和覆盖范围，理应主动确认而不是留白等用户自己发现。
+
+### 2026-07-02 — 将行为机制从“存在证明”改为证据分级的可证伪假设
+
+- WF2.5 将机制 `confidence` 改为 `plausibility`，新增 `evidence_level` / `evidence_detail` / `source_refs`；只有直接相关的用户材料或可核验研究才能标 `supported`。
+- 明确机制库卡片只是推理模板。仅依赖机制库、问卷文本和模型推理时必须标 `model-inference`，合理性最高为 `plausible`。
+- 将 `latent_motive` 全链改为 `hypothesized_latent_motive`，同步 WF3 persona、WF4 response 与 WF5 报告，禁止把推断写成受访者已承认的内心事实。
+- 每个机制新增 `alternative_explanation` 与 `falsification_probe`，替代原先泛化的 `validation_probe`；报告必须展示竞争解释和什么观察会使机制不受支持。
+- 根 Skill、README、AGENTS、pipeline、PRD、RFC、测试、参考库和队友说明统一改为“机制提供可检验合理性，不证明人群存在或现实比例”。
+- 经验教训：理论名称会制造权威感，但“能套上理论”不等于目标场景有证据。可审计机制必须同时说明证据来自哪里、还可能怎么解释、怎样会被证伪。
+
+### 2026-07-02 — 用场景覆盖取代虚假的样本量与人群比例
+
+- WF1 将 `recommended_n` / `n_rationale` 改为可选的 `simulation_n` / `simulation_n_rationale`；删除“真实样本约 385、合成缩放到 30–60”的类比，明确生成数量只是计算预算。
+- WF2 将 `proportion` 改为 `scenario_weight`，每个权重必须记录 `weight_source`；无真实依据时使用 `coverage-default` 等权，不再由模型猜现实分布。
+- WF2 新增 `simulation_plan`：默认按“archetype 数 × 每类 3 个差异化变体”确定基础覆盖，额外预算才按权重分配。
+- WF3 将“样本量置信度”改为“场景覆盖质量”，不再用 N<10 / 10–30 / 30+ 评价证据强弱；增加合成记录不会增加真实世界证据。
+- WF5 将样本量/分群分布措辞改为合成记录数/场景分配，要求列出权重来源，禁止把模拟百分比解释为总体比例、市场规模或发生率。
+- 同步更新根 Skill、README、AGENTS、PRD、RFC、测试和队友修改说明。
+- 经验教训：合成数据的行数只影响压力测试覆盖，不产生独立受访者证据；没有校准数据时，等权场景比“看起来真实”的模型比例更诚实。
+
+### 2026-07-02 — 隔离预注册假设，切断模拟自证循环
+
+- WF2 删除 `预期回答倾向` / `预期影响construct`，WF2.5 删除 `likely_behavior` / `answer_implications`；archetype 与机制文件只保留经历、情境、资源、能力和因果机制。
+- WF2.6 在 `task_frictions.json` 之外新增独立 `hypotheses.json`，要求模拟前写入并标记 `status=sealed`，每条预测包含替代解释和证伪规则。
+- WF3 / WF4 明确禁止读取 `hypotheses.json`；respondent 与 response 不得携带预测方向。模拟结果不支持假设时不得重生成或纠偏。
+- WF4 优先在隔离 context / subagent 中只接收 allowlist 输入；无法隔离时必须标记 `blinding.level=procedural` 并降级置信度，避免把程序性“不读取文件”误称为真正盲法。
+- WF5 才首次加载封存假设，逐条标记 `supported / not_supported / inconclusive` 并附实际统计或 source 证据。
+- 同步更新根 `SKILL.md`、pipeline 命令、README、AGENTS、PRD、RFC 与测试契约。
+- 经验教训：仅禁止把结果变量放进 persona 不足以防自证；只要“预期方向”仍传入作答模型，统计结果仍会回放上游设定。预测必须与生成输入物理分离，并允许假设失败。
+
 ### 2026-07-02 — 增加队友修改说明文档
 
 - 新增 `docs/change-summary.md`：用非工程读者也能理解的方式说明本轮为什么加入 WF2.5 行为机制映射和 WF2.6 任务摩擦映射、改了哪些文件、解决了哪些可信度问题、队友应该按什么顺序 review。
